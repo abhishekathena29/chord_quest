@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, sans-serif;
+    }
+    #alphaTab {
+      padding: 12px;
+    }
+    /* Highlight the note the player is currently on. */
+    .at-cursor-bar { background: rgba(0, 219, 233, 0.15); }
+    .at-cursor-beat { background: rgba(169, 0, 169, 0.75); width: 3px; }
+    .at-highlight * { fill: #a900a9; stroke: #a900a9; }
+    #status {
+      color: #6a7a7b;
+      font-size: 14px;
+      padding: 24px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="status">Loading score…</div>
+  <div id="alphaTab"></div>
+
+  <script src="alphaTab.min.js"></script>
+  <script>
+    let api = null;
+
+    // Post a typed message back to Flutter (channel name: AlphaTab).
+    function toFlutter(type, payload) {
+      try {
+        AlphaTab.postMessage(JSON.stringify({ type: type, payload: payload }));
+      } catch (e) {}
+    }
+
+    function initApi() {
+      const el = document.getElementById('alphaTab');
+      api = new alphaTab.AlphaTabApi(el, {
+        core: {
+          // WebView-friendly: render on the main thread, load SMuFL font locally.
+          useWorkers: false,
+          fontDirectory: 'font/',
+          logLevel: 0,
+        },
+        display: {
+          layoutMode: 'page',
+          scale: 0.9,
+        },
+        player: {
+          // Playback + a moving cursor that follows the notes.
+          enablePlayer: true,
+          enableCursor: true,
+          enableUserInteraction: true,
+          soundFont: 'soundfont/sonivox.sf3',
+          scrollMode: 'continuous',
+        },
+      });
+
+      api.scoreLoaded.on(function (score) {
+        document.getElementById('status').style.display = 'none';
+        toFlutter('scoreLoaded', { title: score.title, tracks: score.tracks.length });
+      });
+      api.renderFinished.on(function () { toFlutter('renderFinished', {}); });
+      api.playerReady.on(function () { toFlutter('playerReady', {}); });
+      api.playerStateChanged.on(function (e) {
+        toFlutter('playerState', { playing: e.state === 1 });
+      });
+      api.error.on(function (err) {
+        document.getElementById('status').innerText = 'Could not render score.';
+        toFlutter('error', { message: String(err && err.message || err) });
+      });
+    }
+
+    // --- API called from Flutter ---
+    function loadAlphaTex(tex) {
+      if (!api) initApi();
+      try { api.tex(tex); } catch (e) { toFlutter('error', { message: String(e) }); }
+    }
+    function playPause() { if (api) api.playPause(); }
+    function stop() { if (api) api.stop(); }
+    function setSpeed(v) { if (api) api.playbackSpeed = v; }
+    function setMetronome(on) { if (api) api.metronomeVolume = on ? 1 : 0; }
+
+    document.addEventListener('DOMContentLoaded', initApi);
+  </script>
+</body>
+</html>
