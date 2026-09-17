@@ -4,9 +4,8 @@ import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/gradient_button.dart';
-import '../../../core/widgets/mesh_background.dart';
-import '../../../core/widgets/shapes.dart';
 import '../../auth/ui/auth_screen.dart';
 import '../provider/onboarding_provider.dart';
 
@@ -15,9 +14,9 @@ class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
 
   void _finish(BuildContext context) {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const AuthScreen()),
-    );
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (_) => const AuthScreen()));
   }
 
   @override
@@ -25,7 +24,7 @@ class OnboardingScreen extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => OnboardingProvider(),
       child: Scaffold(
-        body: MeshBackground(
+        body: AppBackground(
           child: SafeArea(
             child: Consumer<OnboardingProvider>(
               builder: (context, provider, _) {
@@ -66,9 +65,7 @@ class OnboardingScreen extends StatelessWidget {
                       ),
                       child: GradientButton(
                         label: provider.isLastPage ? 'Get Started' : 'Next',
-                        icon: provider.isLastPage
-                            ? Icons.arrow_forward
-                            : null,
+                        icon: provider.isLastPage ? Icons.arrow_forward : null,
                         onPressed: () => provider.isLastPage
                             ? _finish(context)
                             : provider.next(),
@@ -99,31 +96,13 @@ class _OnboardingPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
+            width: 140,
+            height: 140,
             decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: data.accent.withValues(alpha: 0.4),
-                  blurRadius: 60,
-                  spreadRadius: 10,
-                ),
-              ],
+              color: data.accent.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(AppRadius.xl),
             ),
-            child: ClipPath(
-              clipper: HexagonClipper(),
-              child: Container(
-                width: 160,
-                height: 160,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [data.accent, AppColors.secondary],
-                  ),
-                ),
-                child: Icon(data.icon, size: 68, color: AppColors.onPrimary),
-              ),
-            ),
+            child: Icon(data.icon, size: 56, color: data.accent),
           ),
           const SizedBox(height: AppSpacing.xl),
           Text(

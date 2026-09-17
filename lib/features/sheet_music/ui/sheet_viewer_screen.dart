@@ -5,8 +5,9 @@ import 'package:webview_flutter/webview_flutter.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../core/widgets/glass_card.dart';
-import '../../../core/widgets/mesh_background.dart';
+import '../../../core/widgets/app_background.dart';
+import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/circle_icon_button.dart';
 import '../../practice/ui/practice_screen.dart';
 import '../provider/sheet_library_provider.dart';
 import '../provider/sheet_viewer_provider.dart';
@@ -36,22 +37,27 @@ class _ViewerView extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = context.watch<SheetViewerProvider>();
     return Scaffold(
-      body: MeshBackground(
+      body: AppBackground(
         child: SafeArea(
           child: Column(
             children: [
-              _Header(song: song),
+              _TopBar(song: song),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                child: _Intro(song: song),
+              ),
+              const SizedBox(height: AppSpacing.md),
               Expanded(
                 child: Stack(
                   children: [
                     Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.md),
-                      child: GlassCard(
+                        horizontal: AppSpacing.md,
+                      ),
+                      child: AppCard(
                         padding: EdgeInsets.zero,
                         child: ClipRRect(
-                          borderRadius:
-                              BorderRadius.circular(AppRadius.xl),
+                          borderRadius: BorderRadius.circular(AppRadius.xl),
                           child: WebViewWidget(controller: p.controller),
                         ),
                       ),
@@ -72,8 +78,8 @@ class _ViewerView extends StatelessWidget {
   }
 }
 
-class _Header extends StatelessWidget {
-  const _Header({required this.song});
+class _TopBar extends StatelessWidget {
+  const _TopBar({required this.song});
 
   final SheetSong song;
 
@@ -82,34 +88,65 @@ class _Header extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.base),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          IconButton(
+          CircleIconButton(
+            icon: Icons.arrow_back,
             onPressed: () => Navigator.of(context).maybePop(),
-            icon: const Icon(Icons.arrow_back, color: AppColors.onSurface),
           ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(song.title,
-                    style: AppTypography.headlineMd, maxLines: 1),
-                Text(song.subtitle, style: AppTypography.labelSm),
-              ],
-            ),
-          ),
-          FilledButton.icon(
-            style: FilledButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-            ),
+          CircleIconButton(
+            icon: Icons.fiber_manual_record,
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => PracticeScreen(song: song)),
             ),
-            icon: const Icon(Icons.fiber_manual_record, size: 16),
-            label: const Text('Practice'),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _Intro extends StatelessWidget {
+  const _Intro({required this.song});
+
+  final SheetSong song;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '#${song.difficulty.label}',
+          style: AppTypography.labelSm.copyWith(
+            color: song.difficulty.color,
+            letterSpacing: 1,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(song.title, style: AppTypography.headlineMd),
+        const SizedBox(height: AppSpacing.sm),
+        Row(
+          children: [
+            _tag(song.difficulty.label, song.difficulty.color),
+            const SizedBox(width: 6),
+            _tag('${song.tempo} BPM', AppColors.onSurfaceVariant),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Text('${song.subtitle}.', style: AppTypography.bodyMd),
+      ],
+    );
+  }
+
+  Widget _tag(String text, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(AppRadius.full),
+      ),
+      child: Text(text, style: AppTypography.labelSm.copyWith(color: color)),
     );
   }
 }
@@ -123,9 +160,9 @@ class _Controls extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-      child: GlassCard(
+      child: AppCard(
         borderRadius: AppRadius.xl,
-        glowColor: AppColors.primary,
+        accentColor: AppColors.primary,
         child: Column(
           children: [
             Row(
@@ -159,8 +196,11 @@ class _Controls extends StatelessWidget {
             const SizedBox(height: AppSpacing.sm),
             Row(
               children: [
-                const Icon(Icons.speed,
-                    size: 18, color: AppColors.onSurfaceVariant),
+                const Icon(
+                  Icons.speed,
+                  size: 18,
+                  color: AppColors.onSurfaceVariant,
+                ),
                 Expanded(
                   child: Slider(
                     value: provider.speed,
@@ -174,8 +214,10 @@ class _Controls extends StatelessWidget {
                 ),
                 SizedBox(
                   width: 44,
-                  child: Text('${(provider.speed * 100).round()}%',
-                      style: AppTypography.labelSm),
+                  child: Text(
+                    '${(provider.speed * 100).round()}%',
+                    style: AppTypography.labelSm,
+                  ),
                 ),
               ],
             ),
@@ -188,8 +230,10 @@ class _Controls extends StatelessWidget {
   Widget _iconBtn(IconData icon, VoidCallback onTap, {bool active = false}) {
     return IconButton(
       onPressed: onTap,
-      icon: Icon(icon,
-          color: active ? AppColors.primary : AppColors.onSurfaceVariant),
+      icon: Icon(
+        icon,
+        color: active ? AppColors.primary : AppColors.onSurfaceVariant,
+      ),
     );
   }
 }
@@ -220,8 +264,11 @@ class _ErrorPanel extends StatelessWidget {
           children: [
             const Icon(Icons.error_outline, color: AppColors.error, size: 40),
             const SizedBox(height: AppSpacing.sm),
-            Text('Could not render this score.\n$message',
-                textAlign: TextAlign.center, style: AppTypography.bodyMd),
+            Text(
+              'Could not render this score.\n$message',
+              textAlign: TextAlign.center,
+              style: AppTypography.bodyMd,
+            ),
           ],
         ),
       ),

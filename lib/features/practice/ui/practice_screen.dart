@@ -5,8 +5,9 @@ import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../core/widgets/glass_card.dart';
-import '../../../core/widgets/mesh_background.dart';
+import '../../../core/widgets/app_background.dart';
+import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/circle_icon_button.dart';
 import '../../sheet_music/provider/sheet_library_provider.dart';
 import '../provider/practice_provider.dart';
 
@@ -35,7 +36,7 @@ class _PracticeView extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = context.watch<PracticeProvider>();
     return Scaffold(
-      body: MeshBackground(
+      body: AppBackground(
         child: SafeArea(
           child: Column(
             children: [
@@ -77,10 +78,11 @@ class _Header extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.base),
       child: Row(
         children: [
-          IconButton(
+          CircleIconButton(
+            icon: Icons.arrow_back,
             onPressed: () => Navigator.of(context).maybePop(),
-            icon: const Icon(Icons.arrow_back, color: AppColors.onSurface),
           ),
+          const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,8 +105,8 @@ class _AccuracyPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GlassCard(
-      glowColor: AppColors.primary,
+    return AppCard(
+      accentColor: AppColors.primary,
       child: Column(
         children: [
           Row(
@@ -128,8 +130,10 @@ class _AccuracyPanel extends StatelessWidget {
           const SizedBox(height: 6),
           Align(
             alignment: Alignment.centerRight,
-            child: Text('${provider.index} / ${provider.totalNotes} notes',
-                style: AppTypography.labelSm),
+            child: Text(
+              '${provider.index} / ${provider.totalNotes} notes',
+              style: AppTypography.labelSm,
+            ),
           ),
         ],
       ),
@@ -139,8 +143,7 @@ class _AccuracyPanel extends StatelessWidget {
   Widget _stat(String value, String label, Color color) {
     return Column(
       children: [
-        Text(value,
-            style: AppTypography.headlineMd.copyWith(color: color)),
+        Text(value, style: AppTypography.headlineMd.copyWith(color: color)),
         Text(label, style: AppTypography.labelSm),
       ],
     );
@@ -158,7 +161,7 @@ class _NotePanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final running = provider.state == PracticeState.running;
-    return GlassCard(
+    return AppCard(
       child: Column(
         children: [
           Text('NEXT NOTE', style: AppTypography.labelSm),
@@ -166,14 +169,15 @@ class _NotePanel extends StatelessWidget {
           Text(
             running ? provider.nextNoteLabel : '—',
             style: AppTypography.headlineXl.copyWith(
-              fontSize: 48,
               color: AppColors.secondary,
             ),
           ),
           const SizedBox(height: AppSpacing.md),
           Container(
             padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.md, vertical: AppSpacing.base),
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.base,
+            ),
             decoration: BoxDecoration(
               color: provider.onTarget
                   ? const Color(0xFF059669).withValues(alpha: 0.15)
@@ -192,7 +196,9 @@ class _NotePanel extends StatelessWidget {
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  running ? 'You: ${provider.detectedNote}' : 'Tap record to begin',
+                  running
+                      ? 'You: ${provider.detectedNote}'
+                      : 'Tap record to begin',
                   style: AppTypography.labelMd.copyWith(
                     color: provider.onTarget
                         ? const Color(0xFF059669)
@@ -216,8 +222,8 @@ class _ResultPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = provider.transcription;
-    return GlassCard(
-      glowColor: AppColors.secondary,
+    return AppCard(
+      accentColor: AppColors.secondary,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -244,7 +250,8 @@ class _ResultPanel extends StatelessWidget {
                   backgroundColor: AppColors.primary,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
-                onPressed: provider.recordingPath == null || provider.transcribing
+                onPressed:
+                    provider.recordingPath == null || provider.transcribing
                     ? null
                     : provider.transcribe,
                 icon: provider.transcribing
@@ -252,12 +259,16 @@ class _ResultPanel extends StatelessWidget {
                         width: 16,
                         height: 16,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white),
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
                       )
                     : const Icon(Icons.auto_awesome),
-                label: Text(provider.transcribing
-                    ? 'Transcribing…'
-                    : 'Convert to Sheet Music'),
+                label: Text(
+                  provider.transcribing
+                      ? 'Transcribing…'
+                      : 'Convert to Sheet Music',
+                ),
               ),
             )
           else
@@ -306,8 +317,8 @@ class _TransportBar extends StatelessWidget {
             boxShadow: [
               BoxShadow(
                 color: (running ? AppColors.error : AppColors.primary)
-                    .withValues(alpha: 0.4),
-                blurRadius: 24,
+                    .withValues(alpha: 0.25),
+                blurRadius: 18,
               ),
             ],
           ),
@@ -329,19 +340,23 @@ class _PermissionNotice extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.md),
-      child: GlassCard(
-        glowColor: AppColors.error,
+      child: AppCard(
+        accentColor: AppColors.error,
         child: Column(
           children: [
             const Icon(Icons.mic_off, color: AppColors.error, size: 28),
             const SizedBox(height: AppSpacing.base),
-            Text('Microphone access is needed to score your practice.',
-                textAlign: TextAlign.center, style: AppTypography.bodyMd),
+            Text(
+              'Microphone access is needed to score your practice.',
+              textAlign: TextAlign.center,
+              style: AppTypography.bodyMd,
+            ),
             TextButton(
               onPressed: openAppSettings,
-              child: Text('Open Settings',
-                  style:
-                      AppTypography.labelMd.copyWith(color: AppColors.primary)),
+              child: Text(
+                'Open Settings',
+                style: AppTypography.labelMd.copyWith(color: AppColors.primary),
+              ),
             ),
           ],
         ),

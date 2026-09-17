@@ -1,15 +1,13 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
-import '../../features/tuner/ui/tuner_screen.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_typography.dart';
 import 'gradient_text.dart';
 
-/// Frosted top app bar carrying the MelodyQuest brand mark on the left and the
-/// player's XP / streak chip on the right.
+/// Flat top app bar carrying the Chord Quest brand mark on the left and the
+/// player's XP / streak chip on the right. Built on Flutter's own [AppBar] so
+/// the status-bar safe area is handled correctly on every device.
 class QuestAppBar extends StatelessWidget implements PreferredSizeWidget {
   const QuestAppBar({super.key, this.xp = 1240, this.streak = 12});
 
@@ -21,73 +19,58 @@ class QuestAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-        child: Container(
-          height: preferredSize.height,
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.marginMobile),
-          decoration: BoxDecoration(
-            color: AppColors.surfaceContainerLowest.withValues(alpha: 0.6),
-            border: Border(
-              bottom: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+    return AppBar(
+      toolbarHeight: preferredSize.height,
+      backgroundColor: AppColors.surfaceContainerLowest,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      automaticallyImplyLeading: false,
+      titleSpacing: AppSpacing.marginMobile,
+      shape: Border(
+        bottom: BorderSide(
+          color: AppColors.outlineVariant.withValues(alpha: 0.3),
+        ),
+      ),
+      title: Row(
+        children: [
+          const Icon(Icons.music_note, color: AppColors.primary),
+          const SizedBox(width: AppSpacing.base),
+          GradientText('Chord Quest', style: AppTypography.headlineMd),
+        ],
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: AppSpacing.marginMobile),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceContainerHigh.withValues(alpha: 0.7),
+              borderRadius: BorderRadius.circular(AppRadius.full),
             ),
-          ),
-          child: SafeArea(
-            bottom: false,
             child: Row(
               children: [
-                const Icon(Icons.music_note, color: AppColors.primary),
-                const SizedBox(width: AppSpacing.base),
-                GradientText('MelodyQuest', style: AppTypography.headlineMd),
-                const Spacer(),
-                Builder(
-                  builder: (context) => IconButton(
-                    tooltip: 'Tuner',
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const TunerScreen()),
-                    ),
-                    icon: const Icon(Icons.graphic_eq, color: AppColors.primary),
+                Text(
+                  '${_formatXp(xp)} XP',
+                  style: AppTypography.labelMd.copyWith(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(width: AppSpacing.xs),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceContainerHigh.withValues(alpha: 0.7),
-                    borderRadius: BorderRadius.circular(AppRadius.full),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.5)),
-                  ),
-                  child: Row(
-                    children: [
-                      Text(
-                        '${_formatXp(xp)} XP',
-                        style: AppTypography.labelMd.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      const Text('🔥', style: TextStyle(fontSize: 14)),
-                      const SizedBox(width: 2),
-                      Text(
-                        '$streak',
-                        style: AppTypography.labelMd.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
+                const SizedBox(width: 6),
+                const Text('🔥', style: TextStyle(fontSize: 14)),
+                const SizedBox(width: 2),
+                Text(
+                  '$streak',
+                  style: AppTypography.labelMd.copyWith(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
             ),
           ),
         ),
-      ),
+      ],
     );
   }
 

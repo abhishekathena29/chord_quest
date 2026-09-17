@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 /// Colour tokens for the "Luminous Harmonic" design system.
 ///
-/// A vibrant, light-mode glassmorphism palette built on high-energy contrasts:
-/// electric cyan primary, magenta secondary and violet tertiary accents.
+/// A flat, light-mode palette built on high-energy contrasts: electric cyan
+/// primary, magenta secondary and violet tertiary accents.
 class AppColors {
   AppColors._();
 
@@ -56,8 +56,4 @@ class AppColors {
 
   // Signature gradient (primary -> secondary) used for action buttons & brand.
   static const List<Color> brandGradient = [primary, secondary];
-
-  // Glass fills
-  static const Color glassFill = Color(0x99FFFFFF); // rgba(255,255,255,0.6)
-  static const Color glassStroke = Color(0xCCFFFFFF); // rgba(255,255,255,0.8)
 }

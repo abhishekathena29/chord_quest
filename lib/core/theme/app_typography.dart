@@ -11,75 +11,75 @@ class AppTypography {
   AppTypography._();
 
   static TextStyle headlineXl = GoogleFonts.plusJakartaSans(
-    fontSize: 48,
-    height: 56 / 48,
-    fontWeight: FontWeight.w800,
-    letterSpacing: -0.96,
+    fontSize: 36,
+    height: 44 / 36,
+    fontWeight: FontWeight.w700,
+    letterSpacing: -0.6,
     color: AppColors.onSurface,
   );
 
   static TextStyle headlineLg = GoogleFonts.plusJakartaSans(
-    fontSize: 32,
-    height: 40 / 32,
-    fontWeight: FontWeight.w700,
-    letterSpacing: -0.32,
+    fontSize: 22,
+    height: 30 / 22,
+    fontWeight: FontWeight.w600,
+    letterSpacing: -0.2,
     color: AppColors.onSurface,
   );
 
   static TextStyle headlineLgMobile = GoogleFonts.plusJakartaSans(
-    fontSize: 28,
-    height: 36 / 28,
-    fontWeight: FontWeight.w700,
+    fontSize: 20,
+    height: 26 / 20,
+    fontWeight: FontWeight.w600,
     color: AppColors.onSurface,
   );
 
   static TextStyle headlineMd = GoogleFonts.plusJakartaSans(
-    fontSize: 24,
-    height: 32 / 24,
-    fontWeight: FontWeight.w700,
+    fontSize: 17,
+    height: 24 / 17,
+    fontWeight: FontWeight.w600,
     color: AppColors.onSurface,
   );
 
   static TextStyle bodyLg = GoogleFonts.beVietnamPro(
-    fontSize: 18,
-    height: 28 / 18,
+    fontSize: 14,
+    height: 22 / 14,
     fontWeight: FontWeight.w400,
     color: AppColors.onSurfaceVariant,
   );
 
   static TextStyle bodyMd = GoogleFonts.beVietnamPro(
-    fontSize: 16,
-    height: 24 / 16,
+    fontSize: 13,
+    height: 20 / 13,
     fontWeight: FontWeight.w400,
     color: AppColors.onSurfaceVariant,
   );
 
   static TextStyle labelMd = GoogleFonts.beVietnamPro(
-    fontSize: 14,
-    height: 20 / 14,
-    fontWeight: FontWeight.w600,
-    letterSpacing: 0.28,
+    fontSize: 12,
+    height: 18 / 12,
+    fontWeight: FontWeight.w500,
+    letterSpacing: 0.2,
     color: AppColors.onSurface,
   );
 
   static TextStyle labelSm = GoogleFonts.beVietnamPro(
-    fontSize: 12,
-    height: 16 / 12,
-    fontWeight: FontWeight.w700,
-    letterSpacing: 0.6,
+    fontSize: 10.5,
+    height: 14 / 10.5,
+    fontWeight: FontWeight.w600,
+    letterSpacing: 0.4,
     color: AppColors.onSurfaceVariant,
   );
 
   /// Builds a Material [TextTheme] from the tokens above.
   static TextTheme get textTheme => TextTheme(
-        displayLarge: headlineXl,
-        headlineLarge: headlineLg,
-        headlineMedium: headlineMd,
-        titleLarge: headlineMd,
-        bodyLarge: bodyLg,
-        bodyMedium: bodyMd,
-        labelLarge: labelMd,
-        labelMedium: labelMd,
-        labelSmall: labelSm,
-      );
+    displayLarge: headlineXl,
+    headlineLarge: headlineLg,
+    headlineMedium: headlineMd,
+    titleLarge: headlineMd,
+    bodyLarge: bodyLg,
+    bodyMedium: bodyMd,
+    labelLarge: labelMd,
+    labelMedium: labelMd,
+    labelSmall: labelSm,
+  );
 }

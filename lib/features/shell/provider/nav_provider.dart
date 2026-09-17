@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
-/// The three primary destinations of the app shell.
-enum NavTab { learn, journey, profile }
+/// The primary destinations of the app shell. Practice is reached via the
+/// raised centre button in the nav bar, not a tab, so it has no entry here.
+enum NavTab { learn, journey, tuner, profile }
 
 /// Holds the selected bottom-navigation tab.
 class NavProvider extends ChangeNotifier {
-  NavTab _tab = NavTab.journey;
+  NavTab _tab = NavTab.learn;
   NavTab get tab => _tab;
 
   int get index => NavTab.values.indexOf(_tab);

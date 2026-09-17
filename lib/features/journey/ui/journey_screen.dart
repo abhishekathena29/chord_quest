@@ -4,12 +4,12 @@ import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../core/widgets/glass_card.dart';
+import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/shapes.dart';
 import '../provider/journey_provider.dart';
 
 /// The "Guitarist's Journey" — a vertical, gamified level map with a daily
-/// practice summary card and a quick-note FAB.
+/// practice summary card.
 class JourneyScreen extends StatelessWidget {
   const JourneyScreen({super.key});
 
@@ -28,56 +28,44 @@ class _JourneyView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<JourneyProvider>();
-    return Stack(
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.md,
+        AppSpacing.md,
+        AppSpacing.md,
+        AppSpacing.lg,
+      ),
       children: [
-        ListView(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.md,
-            AppSpacing.md,
-            AppSpacing.md,
-            120,
+        Text(
+          'YOUR PROGRESS',
+          style: AppTypography.labelSm.copyWith(
+            color: AppColors.primary,
+            letterSpacing: 2,
           ),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text("Guitarist's Journey", style: AppTypography.headlineLgMobile),
+        const SizedBox(height: AppSpacing.base),
+        Text(
+          'Master the strings and unlock your musical potential.',
+          style: AppTypography.bodyMd,
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        // The vertical map with a glowing path line behind the nodes.
+        Stack(
+          alignment: Alignment.topCenter,
           children: [
-            Text(
-              "Guitarist's Journey",
-              textAlign: TextAlign.center,
-              style: AppTypography.headlineLg,
-            ),
-            const SizedBox(height: AppSpacing.base),
-            Text(
-              'Master the strings and unlock your musical potential through the quest of melody.',
-              textAlign: TextAlign.center,
-              style: AppTypography.bodyMd,
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            // The vertical map with a glowing path line behind the nodes.
-            Stack(
-              alignment: Alignment.topCenter,
+            const Positioned.fill(child: _PathLine()),
+            Column(
               children: [
-                const Positioned.fill(child: _PathLine()),
-                Column(
-                  children: [
-                    for (final level in provider.levels)
-                      _LevelSection(level: level),
-                  ],
-                ),
+                for (final level in provider.levels)
+                  _LevelSection(level: level),
               ],
             ),
-            const SizedBox(height: AppSpacing.lg),
-            _DailyPracticeCard(provider: provider),
           ],
         ),
-        Positioned(
-          right: AppSpacing.md,
-          bottom: 100,
-          child: FloatingActionButton(
-            heroTag: 'journey_note',
-            onPressed: () {},
-            backgroundColor: AppColors.secondary,
-            elevation: 8,
-            child: const Icon(Icons.edit_note, color: Colors.white),
-          ),
-        ),
+        const SizedBox(height: AppSpacing.lg),
+        _DailyPracticeCard(provider: provider),
       ],
     );
   }
@@ -119,7 +107,7 @@ class _LevelSection extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: AppSpacing.xl),
       child: Column(
         children: [
-          GlassCard(
+          AppCard(
             padding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.md,
               vertical: AppSpacing.base,
@@ -219,24 +207,33 @@ class _NodeShape extends StatelessWidget {
           size: 92,
           gradient: const LinearGradient(colors: AppColors.brandGradient),
           glow: AppColors.primary,
-          child: const Icon(Icons.play_arrow_rounded,
-              color: AppColors.onPrimary, size: 44),
+          child: const Icon(
+            Icons.play_arrow_rounded,
+            color: AppColors.onPrimary,
+            size: 44,
+          ),
         );
       case NodeStatus.upcoming:
         return _hex(
           size: 76,
           color: AppColors.surfaceContainerLow,
           border: AppColors.primaryFixedDim,
-          child: Icon(Icons.timer_outlined,
-              color: AppColors.primary.withValues(alpha: 0.5), size: 30),
+          child: Icon(
+            Icons.timer_outlined,
+            color: AppColors.primary.withValues(alpha: 0.5),
+            size: 30,
+          ),
         );
       case NodeStatus.completed:
         return _hex(
           size: 76,
           color: AppColors.primaryContainer,
           border: AppColors.primary,
-          child: const Icon(Icons.check_circle,
-              color: AppColors.onPrimaryContainer, size: 32),
+          child: const Icon(
+            Icons.check_circle,
+            color: AppColors.onPrimaryContainer,
+            size: 32,
+          ),
         );
       case NodeStatus.locked:
         return ClipPath(
@@ -282,9 +279,9 @@ class _NodeShape extends StatelessWidget {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: glow.withValues(alpha: 0.45),
-              blurRadius: 30,
-              spreadRadius: 4,
+              color: glow.withValues(alpha: 0.25),
+              blurRadius: 24,
+              spreadRadius: 0,
             ),
           ],
         ),
@@ -302,8 +299,8 @@ class _DailyPracticeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GlassCard(
-      glowColor: AppColors.secondary,
+    return AppCard(
+      accentColor: AppColors.secondary,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -313,12 +310,18 @@ class _DailyPracticeCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Daily Practice',
-                        style: AppTypography.headlineMd
-                            .copyWith(color: AppColors.primary)),
-                    Text('Keep your streak alive!',
-                        style: AppTypography.labelMd
-                            .copyWith(color: AppColors.onSurfaceVariant)),
+                    Text(
+                      'Daily Practice',
+                      style: AppTypography.headlineMd.copyWith(
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    Text(
+                      'Keep your streak alive!',
+                      style: AppTypography.labelMd.copyWith(
+                        color: AppColors.onSurfaceVariant,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -329,8 +332,10 @@ class _DailyPracticeCard extends StatelessWidget {
                   color: AppColors.secondaryFixed,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.local_fire_department,
-                    color: AppColors.secondary),
+                child: const Icon(
+                  Icons.local_fire_department,
+                  color: AppColors.secondary,
+                ),
               ),
             ],
           ),
@@ -354,7 +359,9 @@ class _DailyPracticeCard extends StatelessWidget {
               ),
               Text(
                 '${(provider.dailyProgress * 100).round()}% Today',
-                style: AppTypography.labelSm.copyWith(color: AppColors.secondary),
+                style: AppTypography.labelSm.copyWith(
+                  color: AppColors.secondary,
+                ),
               ),
             ],
           ),
@@ -424,11 +431,16 @@ class _MiniStat extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label,
-                    style: AppTypography.labelSm.copyWith(fontSize: 10)),
-                Text(value,
-                    style: AppTypography.labelMd
-                        .copyWith(color: AppColors.onSurface)),
+                Text(
+                  label,
+                  style: AppTypography.labelSm.copyWith(fontSize: 10),
+                ),
+                Text(
+                  value,
+                  style: AppTypography.labelMd.copyWith(
+                    color: AppColors.onSurface,
+                  ),
+                ),
               ],
             ),
           ),

@@ -4,8 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../core/widgets/glass_card.dart';
-import '../../tuner/ui/tuner_screen.dart';
+import '../../../core/widgets/app_card.dart';
 import '../provider/study_provider.dart';
 
 /// "Guitar Study & Sheet Music" — an interactive staff, live accuracy ring,
@@ -38,14 +37,18 @@ class _StudyView extends StatelessWidget {
             140,
           ),
           children: [
-            Text('CURRENT SESSION',
-                style: AppTypography.labelSm.copyWith(
-                  color: AppColors.primary,
-                  letterSpacing: 2,
-                )),
+            Text(
+              'CURRENT SESSION',
+              style: AppTypography.labelSm.copyWith(
+                color: AppColors.primary,
+                letterSpacing: 2,
+              ),
+            ),
             const SizedBox(height: AppSpacing.xs),
-            Text('Guitar Study & Sheet Music',
-                style: AppTypography.headlineLgMobile),
+            Text(
+              'Guitar Study & Sheet Music',
+              style: AppTypography.headlineLgMobile,
+            ),
             const SizedBox(height: AppSpacing.md),
             Row(
               children: [
@@ -102,7 +105,7 @@ class _StatChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GlassCard(
+    return AppCard(
       padding: const EdgeInsets.all(AppSpacing.sm),
       borderRadius: AppRadius.lg,
       child: Row(
@@ -121,9 +124,12 @@ class _StatChip extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(label, style: AppTypography.labelSm),
-              Text(value,
-                  style: AppTypography.labelMd
-                      .copyWith(color: AppColors.onSurface)),
+              Text(
+                value,
+                style: AppTypography.labelMd.copyWith(
+                  color: AppColors.onSurface,
+                ),
+              ),
             ],
           ),
         ],
@@ -139,7 +145,7 @@ class _InteractiveStaffCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GlassCard(
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -162,7 +168,8 @@ class _InteractiveStaffCard extends StatelessWidget {
                     for (var i = 0; i < notes.length; i++)
                       _StaffNoteDot(
                         note: notes[i],
-                        x: constraints.maxWidth *
+                        x:
+                            constraints.maxWidth *
                             (0.15 + 0.7 * (i / (notes.length - 1))),
                         height: constraints.maxHeight,
                       ),
@@ -216,8 +223,10 @@ class _StaffNoteDot extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 2),
-          Text(note.name,
-              style: AppTypography.labelSm.copyWith(color: note.color)),
+          Text(
+            note.name,
+            style: AppTypography.labelSm.copyWith(color: note.color),
+          ),
         ],
       ),
     );
@@ -251,7 +260,7 @@ class _AccuracyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GlassCard(
+    return AppCard(
       child: Column(
         children: [
           SizedBox(
@@ -263,16 +272,17 @@ class _AccuracyCard extends StatelessWidget {
                 SizedBox(
                   width: 132,
                   height: 132,
-                  child: CustomPaint(
-                    painter: _RingPainter(accuracy / 100),
-                  ),
+                  child: CustomPaint(painter: _RingPainter(accuracy / 100)),
                 ),
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('$accuracy%',
-                        style: AppTypography.headlineMd
-                            .copyWith(color: AppColors.primary)),
+                    Text(
+                      '$accuracy%',
+                      style: AppTypography.headlineMd.copyWith(
+                        color: AppColors.primary,
+                      ),
+                    ),
                     Text('Accuracy', style: AppTypography.labelSm),
                   ],
                 ),
@@ -283,12 +293,16 @@ class _AccuracyCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Perfect Notes',
-                  style: AppTypography.labelMd
-                      .copyWith(color: AppColors.onSurfaceVariant)),
-              Text('$perfectNotes',
-                  style:
-                      AppTypography.labelMd.copyWith(color: AppColors.primary)),
+              Text(
+                'Perfect Notes',
+                style: AppTypography.labelMd.copyWith(
+                  color: AppColors.onSurfaceVariant,
+                ),
+              ),
+              Text(
+                '$perfectNotes',
+                style: AppTypography.labelMd.copyWith(color: AppColors.primary),
+              ),
             ],
           ),
           const SizedBox(height: AppSpacing.base),
@@ -347,7 +361,7 @@ class _FretboardCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GlassCard(
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -359,16 +373,22 @@ class _FretboardCard extends StatelessWidget {
                 title: 'Fretboard Master',
               ),
               const Spacer(),
-              _pill(provider.tuning, AppColors.surfaceContainerHigh,
-                  AppColors.onSurfaceVariant),
+              _pill(
+                provider.tuning,
+                AppColors.surfaceContainerHigh,
+                AppColors.onSurfaceVariant,
+              ),
             ],
           ),
           if (provider.advancedMode) ...[
             const SizedBox(height: AppSpacing.base),
             Align(
               alignment: Alignment.centerRight,
-              child: _pill('Advanced Mode',
-                  AppColors.secondaryFixed, AppColors.secondary),
+              child: _pill(
+                'Advanced Mode',
+                AppColors.secondaryFixed,
+                AppColors.secondary,
+              ),
             ),
           ],
           const SizedBox(height: AppSpacing.md),
@@ -405,8 +425,10 @@ class _FretboardCard extends StatelessWidget {
         color: bg.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(AppRadius.full),
       ),
-      child: Text(text,
-          style: AppTypography.labelSm.copyWith(color: fg, letterSpacing: 0.3)),
+      child: Text(
+        text,
+        style: AppTypography.labelSm.copyWith(color: fg, letterSpacing: 0.3),
+      ),
     );
   }
 }
@@ -446,7 +468,11 @@ class _FretboardPainter extends CustomPainter {
       ..strokeWidth = 2;
     for (var f = 0; f <= frets; f++) {
       final x = padX + fretW * f;
-      canvas.drawLine(Offset(x, padY), Offset(x, size.height - padY), fretPaint);
+      canvas.drawLine(
+        Offset(x, padY),
+        Offset(x, size.height - padY),
+        fretPaint,
+      );
     }
 
     // Inlay dots on frets 3, 5, 7, 9.
@@ -520,9 +546,12 @@ class _CardHeader extends StatelessWidget {
           child: Icon(icon, size: 16, color: color),
         ),
         const SizedBox(width: AppSpacing.base),
-        Text(title,
-            style: AppTypography.labelMd
-                .copyWith(color: AppColors.onSurfaceVariant)),
+        Text(
+          title,
+          style: AppTypography.labelMd.copyWith(
+            color: AppColors.onSurfaceVariant,
+          ),
+        ),
       ],
     );
   }
@@ -537,13 +566,13 @@ class _ControlBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 380),
-      child: GlassCard(
+      child: AppCard(
         borderRadius: AppRadius.full,
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.md,
           vertical: AppSpacing.sm,
         ),
-        glowColor: AppColors.primary,
+        accentColor: AppColors.primary,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -554,12 +583,14 @@ class _ControlBar extends StatelessWidget {
                 width: 60,
                 height: 60,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(colors: AppColors.brandGradient),
+                  gradient: const LinearGradient(
+                    colors: AppColors.brandGradient,
+                  ),
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.4),
-                      blurRadius: 24,
+                      color: AppColors.primary.withValues(alpha: 0.25),
+                      blurRadius: 18,
                     ),
                   ],
                 ),
@@ -571,19 +602,6 @@ class _ControlBar extends StatelessWidget {
               ),
             ),
             _round(Icons.forward_10, () {}),
-            Container(
-              width: 1,
-              height: 28,
-              color: AppColors.outlineVariant.withValues(alpha: 0.4),
-            ),
-            Builder(
-              builder: (context) => _round(
-                Icons.tune,
-                () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const TunerScreen()),
-                ),
-              ),
-            ),
           ],
         ),
       ),

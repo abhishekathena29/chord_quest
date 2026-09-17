@@ -4,26 +4,15 @@ import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../core/widgets/glass_card.dart';
+import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/gradient_button.dart';
 import '../provider/profile_provider.dart';
 
 /// "Guitarist Profile" — avatar header, bento stats grid, earned badges and an
-/// active weekly-challenge card.
+/// active weekly-challenge card. Reads the [ProfileProvider] shared by
+/// [MainShell] so the Home tab's greeting stays in sync.
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => ProfileProvider(),
-      child: const _ProfileView(),
-    );
-  }
-}
-
-class _ProfileView extends StatelessWidget {
-  const _ProfileView();
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +22,7 @@ class _ProfileView extends StatelessWidget {
         AppSpacing.md,
         AppSpacing.lg,
         AppSpacing.md,
-        120,
+        AppSpacing.lg,
       ),
       children: [
         _Header(provider: p),
@@ -55,12 +44,14 @@ class _ProfileView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text('Earned Badges', style: AppTypography.headlineMd),
-            Text('View All',
-                style: AppTypography.labelMd.copyWith(color: AppColors.primary)),
+            Text(
+              'View All',
+              style: AppTypography.labelMd.copyWith(color: AppColors.primary),
+            ),
           ],
         ),
         const SizedBox(height: AppSpacing.md),
-        GlassCard(
+        AppCard(
           child: Wrap(
             spacing: AppSpacing.md,
             runSpacing: AppSpacing.md,
@@ -104,12 +95,9 @@ class _Header extends StatelessWidget {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primaryContainer.withValues(alpha: 0.6),
-                    blurRadius: 20,
-                  ),
-                  BoxShadow(
-                    color: AppColors.secondary.withValues(alpha: 0.4),
-                    blurRadius: 40,
+                    color: AppColors.secondary.withValues(alpha: 0.2),
+                    blurRadius: 30,
+                    spreadRadius: -4,
                   ),
                 ],
               ),
@@ -119,8 +107,11 @@ class _Header extends StatelessWidget {
                   color: AppColors.inverseSurface,
                   border: Border.all(color: Colors.white, width: 4),
                 ),
-                child: const Icon(Icons.person,
-                    size: 64, color: AppColors.inverseOnSurface),
+                child: const Icon(
+                  Icons.person,
+                  size: 64,
+                  color: AppColors.inverseOnSurface,
+                ),
               ),
             ),
             Positioned(
@@ -135,9 +126,12 @@ class _Header extends StatelessWidget {
                   border: Border.all(color: Colors.white, width: 2),
                 ),
                 alignment: Alignment.center,
-                child: Text('${provider.level}',
-                    style: AppTypography.labelMd
-                        .copyWith(color: AppColors.onPrimaryContainer)),
+                child: Text(
+                  '${provider.level}',
+                  style: AppTypography.labelMd.copyWith(
+                    color: AppColors.onPrimaryContainer,
+                  ),
+                ),
               ),
             ),
           ],
@@ -145,8 +139,10 @@ class _Header extends StatelessWidget {
         const SizedBox(height: AppSpacing.md),
         Text(provider.name, style: AppTypography.headlineLg),
         const SizedBox(height: AppSpacing.xs),
-        Text(provider.rank,
-            style: AppTypography.headlineMd.copyWith(color: AppColors.secondary)),
+        Text(
+          provider.rank,
+          style: AppTypography.headlineMd.copyWith(color: AppColors.secondary),
+        ),
         const SizedBox(height: AppSpacing.sm),
         Wrap(
           spacing: AppSpacing.sm,
@@ -185,7 +181,7 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GlassCard(
+    return AppCard(
       padding: const EdgeInsets.all(AppSpacing.sm),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -200,9 +196,12 @@ class _StatCard extends StatelessWidget {
             child: Icon(stat.icon, color: stat.color, size: 26),
           ),
           const SizedBox(height: AppSpacing.sm),
-          Text(stat.value,
-              style: AppTypography.headlineMd
-                  .copyWith(color: AppColors.onSurface)),
+          Text(
+            stat.value,
+            style: AppTypography.headlineMd.copyWith(
+              color: AppColors.onSurface,
+            ),
+          ),
           Text(stat.label, style: AppTypography.labelSm),
         ],
       ),
@@ -274,8 +273,8 @@ class _ChallengeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GlassCard(
-      glowColor: AppColors.primary,
+    return AppCard(
+      accentColor: AppColors.primary,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -288,15 +287,20 @@ class _ChallengeCard extends StatelessWidget {
                   color: AppColors.primaryContainer,
                   borderRadius: BorderRadius.circular(AppRadius.base),
                 ),
-                child: const Icon(Icons.auto_awesome,
-                    color: AppColors.onPrimaryContainer, size: 22),
+                child: const Icon(
+                  Icons.auto_awesome,
+                  color: AppColors.onPrimaryContainer,
+                  size: 22,
+                ),
               ),
               const SizedBox(width: AppSpacing.sm),
-              Text('WEEKLY CHALLENGE',
-                  style: AppTypography.labelMd.copyWith(
-                    color: AppColors.primary,
-                    letterSpacing: 1,
-                  )),
+              Text(
+                'WEEKLY CHALLENGE',
+                style: AppTypography.labelMd.copyWith(
+                  color: AppColors.primary,
+                  letterSpacing: 1,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
@@ -308,8 +312,10 @@ class _ChallengeCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('Progress', style: AppTypography.labelSm),
-              Text('${(provider.challengeProgress * 100).round()}%',
-                  style: AppTypography.labelSm),
+              Text(
+                '${(provider.challengeProgress * 100).round()}%',
+                style: AppTypography.labelSm,
+              ),
             ],
           ),
           const SizedBox(height: 6),
