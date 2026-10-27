@@ -1,23 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/session/user_session.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/gradient_button.dart';
-import '../../auth/ui/auth_screen.dart';
 import '../provider/onboarding_provider.dart';
 
 /// Three-slide onboarding carousel shown before authentication.
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
 
-  void _finish(BuildContext context) {
-    Navigator.of(
-      context,
-    ).pushReplacement(MaterialPageRoute(builder: (_) => const AuthScreen()));
-  }
+  void _finish(BuildContext context) =>
+      context.read<UserSession>().finishOnboarding();
 
   @override
   Widget build(BuildContext context) {

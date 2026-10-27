@@ -1,0 +1,49 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "chordquest-bb26c",
+          "appId": "1:19692135134:android:52dc4af2833d0a72b7d84f",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "chordquest-bb26c",
+          "appId": "1:19692135134:ios:e8a0f4fd9b7a1138b7d84f",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "chordquest-bb26c",
+          "configurations": {
+            "android": "1:19692135134:android:52dc4af2833d0a72b7d84f",
+            "ios": "1:19692135134:ios:e8a0f4fd9b7a1138b7d84f",
+            "web": "1:19692135134:web:45959fb96c2b5a8ab7d84f"
+          }
+        }
+      }
+    }
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "emulators": {
+    "auth": {
+      "host": "127.0.0.1",
+      "port": 9099
+    },
+    "firestore": {
+      "host": "127.0.0.1",
+      "port": 8080
+    },
+    "ui": {
+      "enabled": false
+    },
+    "singleProjectMode": true
+  }
+}

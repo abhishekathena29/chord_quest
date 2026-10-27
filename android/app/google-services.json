@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "19692135134",
+    "project_id": "chordquest-bb26c",
+    "storage_bucket": "chordquest-bb26c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:19692135134:android:52dc4af2833d0a72b7d84f",
+        "android_client_info": {
+          "package_name": "com.chordquest.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5N6a_wVQGWOZS9RIAK-zvN9xALuTK0A0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

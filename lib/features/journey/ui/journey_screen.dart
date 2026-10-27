@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/session/user_session.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
@@ -9,25 +10,13 @@ import '../../../core/widgets/shapes.dart';
 import '../provider/journey_provider.dart';
 
 /// The "Guitarist's Journey" — a vertical, gamified level map with a daily
-/// practice summary card.
+/// practice summary card, driven by the player's XP and practice time.
 class JourneyScreen extends StatelessWidget {
   const JourneyScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => JourneyProvider(),
-      child: const _JourneyView(),
-    );
-  }
-}
-
-class _JourneyView extends StatelessWidget {
-  const _JourneyView();
-
-  @override
-  Widget build(BuildContext context) {
-    final provider = context.watch<JourneyProvider>();
+    final provider = JourneyProgress(context.watch<UserSession>().profile);
     return ListView(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.md,
@@ -189,6 +178,15 @@ class _Label extends StatelessWidget {
             color: AppColors.onSurfaceVariant,
           ),
         ),
+        if (node.status == NodeStatus.locked ||
+            node.status == NodeStatus.upcoming)
+          Text(
+            'Unlocks at ${node.unlockXp} XP',
+            style: AppTypography.labelSm.copyWith(
+              color: AppColors.outline,
+              fontSize: 11,
+            ),
+          ),
       ],
     );
   }
@@ -295,7 +293,7 @@ class _NodeShape extends StatelessWidget {
 class _DailyPracticeCard extends StatelessWidget {
   const _DailyPracticeCard({required this.provider});
 
-  final JourneyProvider provider;
+  final JourneyProgress provider;
 
   @override
   Widget build(BuildContext context) {
@@ -379,10 +377,10 @@ class _DailyPracticeCard extends StatelessWidget {
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: _MiniStat(
-                  icon: Icons.military_tech,
+                  icon: Icons.music_note,
                   color: AppColors.secondary,
-                  label: 'BADGES',
-                  value: '${provider.badges} Earned',
+                  label: 'SESSIONS',
+                  value: '${provider.sessions}',
                 ),
               ),
             ],

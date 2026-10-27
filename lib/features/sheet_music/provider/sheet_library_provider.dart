@@ -103,6 +103,9 @@ class SheetLibraryProvider extends ChangeNotifier {
   Difficulty? _filter;
   Difficulty? get filter => _filter;
 
+  /// The full library, ignoring the difficulty filter.
+  List<SheetSong> get allSongs => _songs;
+
   List<SheetSong> get songs => _filter == null
       ? _songs
       : _songs.where((s) => s.difficulty == _filter).toList();

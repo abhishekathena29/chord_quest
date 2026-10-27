@@ -1,8 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Microphone: required by the tuner, practice scoring and recording. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <!-- Network: google_fonts downloads Plus Jakarta Sans / Be Vietnam Pro at runtime. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
-        android:label="chord_quest"
+        android:label="Chord Quest"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

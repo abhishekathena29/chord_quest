@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/session/user_session.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/gradient_button.dart';
-import '../../shell/ui/main_shell.dart';
 import '../provider/profile_setup_provider.dart';
 
 /// A single, minimal screen shown once right after sign-up to learn the
@@ -26,11 +26,19 @@ class ProfileSetupScreen extends StatelessWidget {
 class _ProfileSetupView extends StatelessWidget {
   const _ProfileSetupView();
 
-  void _finish(BuildContext context) {
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const MainShell()),
-      (route) => false,
-    );
+  /// Saves the answers (all null when skipped). The write lands in the local
+  /// Firestore cache straight away, so the root auth gate moves on to the
+  /// main shell without waiting for the server.
+  void _finish(BuildContext context, {bool skipped = false}) {
+    final p = context.read<ProfileSetupProvider>();
+    context
+        .read<UserSession>()
+        .completeProfileSetup(
+          skillLevel: skipped ? null : p.skill?.name,
+          experience: skipped ? null : p.experience?.name,
+          goal: skipped ? null : p.goal?.name,
+        )
+        .catchError((Object e) => debugPrint('Profile setup failed: $e'));
   }
 
   @override
@@ -49,7 +57,7 @@ class _ProfileSetupView extends StatelessWidget {
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
-                      onPressed: () => _finish(context),
+                      onPressed: () => _finish(context, skipped: true),
                       child: Text(
                         'Skip',
                         style: AppTypography.labelMd.copyWith(

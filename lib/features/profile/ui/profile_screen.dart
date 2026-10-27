@@ -1,22 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/data/auth_service.dart';
+import '../../../core/data/models/practice_session.dart';
+import '../../../core/session/user_session.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/gradient_button.dart';
+import '../../shell/provider/nav_provider.dart';
 import '../provider/profile_provider.dart';
 
-/// "Guitarist Profile" — avatar header, bento stats grid, earned badges and an
-/// active weekly-challenge card. Reads the [ProfileProvider] shared by
-/// [MainShell] so the Home tab's greeting stays in sync.
+/// "Guitarist Profile" — avatar header, bento stats grid, earned badges, the
+/// weekly practice challenge, recent sessions and account actions. Everything
+/// is derived live from the signed-in player's [UserSession].
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final p = context.watch<ProfileProvider>();
+    final session = context.watch<UserSession>();
+    final p = ProfileView(session.profile);
     return ListView(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.md,
@@ -45,7 +50,7 @@ class ProfileScreen extends StatelessWidget {
           children: [
             Text('Earned Badges', style: AppTypography.headlineMd),
             Text(
-              'View All',
+              '${p.earnedBadges} / ${p.badges.length}',
               style: AppTypography.labelMd.copyWith(color: AppColors.primary),
             ),
           ],
@@ -63,6 +68,14 @@ class ProfileScreen extends StatelessWidget {
         Text('Active Mission', style: AppTypography.headlineMd),
         const SizedBox(height: AppSpacing.md),
         _ChallengeCard(provider: p),
+        const SizedBox(height: AppSpacing.lg),
+        Text('Recent Sessions', style: AppTypography.headlineMd),
+        const SizedBox(height: AppSpacing.md),
+        _RecentSessions(sessions: session.recentSessions),
+        const SizedBox(height: AppSpacing.lg),
+        Text('Account', style: AppTypography.headlineMd),
+        const SizedBox(height: AppSpacing.md),
+        _AccountCard(email: session.user?.email ?? ''),
       ],
     );
   }
@@ -71,7 +84,7 @@ class ProfileScreen extends StatelessWidget {
 class _Header extends StatelessWidget {
   const _Header({required this.provider});
 
-  final ProfileProvider provider;
+  final ProfileView provider;
 
   @override
   Widget build(BuildContext context) {
@@ -147,8 +160,10 @@ class _Header extends StatelessWidget {
         Wrap(
           spacing: AppSpacing.sm,
           children: [
-            _infoChip(Icons.location_on, provider.location),
-            _infoChip(Icons.calendar_today, provider.joined),
+            if (provider.skillLabel != null)
+              _infoChip(Icons.music_note, provider.skillLabel!),
+            if (provider.joined != null)
+              _infoChip(Icons.calendar_today, provider.joined!),
           ],
         ),
       ],
@@ -269,7 +284,7 @@ class _BadgeTile extends StatelessWidget {
 class _ChallengeCard extends StatelessWidget {
   const _ChallengeCard({required this.provider});
 
-  final ProfileProvider provider;
+  final ProfileView provider;
 
   @override
   Widget build(BuildContext context) {
@@ -332,10 +347,234 @@ class _ChallengeCard extends StatelessWidget {
           GradientButton(
             label: 'Practice Now',
             icon: Icons.arrow_forward,
-            onPressed: () {},
+            onPressed: () => context.read<NavProvider>().select(NavTab.learn),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _RecentSessions extends StatelessWidget {
+  const _RecentSessions({required this.sessions});
+
+  final List<PracticeSession> sessions;
+
+  @override
+  Widget build(BuildContext context) {
+    if (sessions.isEmpty) {
+      return AppCard(
+        child: Text(
+          'No sessions yet. Tap the record button to start practising.',
+          textAlign: TextAlign.center,
+          style: AppTypography.bodyMd,
+        ),
+      );
+    }
+    return AppCard(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.base,
+      ),
+      child: Column(
+        children: [
+          for (final s in sessions)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: Icon(
+                s.completed ? Icons.check_circle : Icons.music_note,
+                color: s.completed
+                    ? const Color(0xFF059669)
+                    : AppColors.onSurfaceVariant,
+              ),
+              title: Text(s.songTitle, style: AppTypography.labelMd),
+              subtitle: Text(
+                '${_date(s.startedAt)} • '
+                '${ProfileView.formatDuration(s.durationSeconds)} • '
+                '${s.notesHit} notes',
+                style: AppTypography.labelSm,
+              ),
+              trailing: Text(
+                '+${s.xpEarned} XP',
+                style: AppTypography.labelMd.copyWith(
+                  color: AppColors.secondary,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  static String _date(DateTime d) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final day = DateTime(d.year, d.month, d.day);
+    final diff = today.difference(day).inDays;
+    if (diff == 0) return 'Today';
+    if (diff == 1) return 'Yesterday';
+    return '${d.day}/${d.month}/${d.year}';
+  }
+}
+
+class _AccountCard extends StatelessWidget {
+  const _AccountCard({required this.email});
+
+  final String email;
+
+  Future<void> _signOut(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Sign out?'),
+        content: const Text('Your progress is saved to your account.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Sign out'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true && context.mounted) {
+      await context.read<UserSession>().signOut();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.base,
+      ),
+      child: Column(
+        children: [
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.mail_outline),
+            title: Text('Signed in as', style: AppTypography.labelSm),
+            subtitle: Text(email, style: AppTypography.labelMd),
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.logout),
+            title: Text('Sign out', style: AppTypography.labelMd),
+            onTap: () => _signOut(context),
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.delete_outline, color: AppColors.error),
+            title: Text(
+              'Delete account',
+              style: AppTypography.labelMd.copyWith(color: AppColors.error),
+            ),
+            subtitle: Text(
+              'Permanently erase your account and all progress',
+              style: AppTypography.labelSm,
+            ),
+            onTap: () => showDialog<void>(
+              context: context,
+              builder: (_) => const _DeleteAccountDialog(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Asks for the password (Firebase requires a recent sign-in) before wiping
+/// the player's data and account.
+class _DeleteAccountDialog extends StatefulWidget {
+  const _DeleteAccountDialog();
+
+  @override
+  State<_DeleteAccountDialog> createState() => _DeleteAccountDialogState();
+}
+
+class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
+  final _password = TextEditingController();
+  bool _busy = false;
+  String? _error;
+
+  Future<void> _delete() async {
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      await context.read<UserSession>().deleteAccount(_password.text);
+      if (mounted) Navigator.of(context).pop();
+    } on AuthFailure catch (e) {
+      setState(() => _error = e.message);
+    } catch (_) {
+      setState(() => _error = 'Could not delete your account. Try again.');
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _password.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Delete account?'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'This permanently deletes your account, practice history and '
+            'progress. This cannot be undone.',
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          TextField(
+            controller: _password,
+            obscureText: true,
+            enabled: !_busy,
+            onChanged: (_) => setState(() {}),
+            decoration: const InputDecoration(
+              labelText: 'Confirm your password',
+            ),
+          ),
+          if (_error != null) ...[
+            const SizedBox(height: AppSpacing.base),
+            Text(
+              _error!,
+              style: AppTypography.labelSm.copyWith(color: AppColors.error),
+            ),
+          ],
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: _busy ? null : () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: _busy || _password.text.isEmpty ? null : _delete,
+          child: _busy
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Text(
+                  'Delete',
+                  style: TextStyle(color: AppColors.error),
+                ),
+        ),
+      ],
     );
   }
 }

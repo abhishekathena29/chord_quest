@@ -9,7 +9,7 @@ import 'gradient_text.dart';
 /// player's XP / streak chip on the right. Built on Flutter's own [AppBar] so
 /// the status-bar safe area is handled correctly on every device.
 class QuestAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const QuestAppBar({super.key, this.xp = 1240, this.streak = 12});
+  const QuestAppBar({super.key, required this.xp, required this.streak});
 
   final int xp;
   final int streak;

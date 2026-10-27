@@ -8,6 +8,8 @@ import '../../../core/audio/alphatex_notes.dart';
 import '../../../core/audio/note_math.dart';
 import '../../../core/audio/pitch_engine.dart';
 import '../../../core/audio/wav_writer.dart';
+import '../../../core/data/models/practice_session.dart';
+import '../../../core/progress/progression.dart';
 import '../../sheet_music/provider/sheet_library_provider.dart';
 import '../../transcription/service/transcription_service.dart';
 
@@ -17,10 +19,12 @@ enum PracticeState { idle, running, finished }
 ///  * captures the mic once and uses it for BOTH note scoring and recording,
 ///  * scores the player against the song's note timeline (pitch-class match,
 ///    advancing on each correctly played note),
-///  * saves the take as a WAV that can be sent for transcription.
+///  * saves the take as a WAV that can be sent for transcription,
+///  * reports the result via [onSessionFinished] so it can be persisted.
 class PracticeProvider extends ChangeNotifier {
   PracticeProvider({
     required this.song,
+    this.onSessionFinished,
     PitchEngine? engine,
     TranscriptionService? transcriber,
   })  : _engine = engine ?? PitchEngine(),
@@ -29,6 +33,7 @@ class PracticeProvider extends ChangeNotifier {
   }
 
   final SheetSong song;
+  final ValueChanged<PracticeSession>? onSessionFinished;
   final PitchEngine _engine;
   final TranscriptionService _transcriber;
 
@@ -74,6 +79,12 @@ class PracticeProvider extends ChangeNotifier {
   }
 
   // --- Session / recording ---
+  DateTime? _startedAt;
+
+  /// The saved result of the last finished take (null if it was too short).
+  PracticeSession? _lastSession;
+  PracticeSession? get lastSession => _lastSession;
+
   Duration _elapsed = Duration.zero;
   Duration get elapsed => _elapsed;
 
@@ -105,6 +116,7 @@ class PracticeProvider extends ChangeNotifier {
     await _engine.start();
 
     _state = PracticeState.running;
+    _startedAt = DateTime.now();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       _elapsed += const Duration(seconds: 1);
       notifyListeners();
@@ -160,8 +172,33 @@ class PracticeProvider extends ChangeNotifier {
     }
     _wav = null;
 
+    _lastSession = _buildSession();
+    if (_lastSession != null) onSessionFinished?.call(_lastSession!);
+
     _state = PracticeState.finished;
     notifyListeners();
+  }
+
+  PracticeSession? _buildSession() {
+    final seconds = _elapsed.inSeconds;
+    if (_hits == 0 && seconds < Progression.minSessionSeconds) return null;
+    final completed = totalNotes > 0 && _index >= totalNotes;
+    return PracticeSession(
+      songId: song.id,
+      songTitle: song.title,
+      difficulty: song.difficulty.name,
+      startedAt: _startedAt ?? DateTime.now(),
+      durationSeconds: seconds,
+      notesHit: _hits,
+      notesPlayed: _index,
+      totalNotes: totalNotes,
+      accuracyPct: accuracyPct,
+      xpEarned: Progression.xpForSession(
+        notesHit: _hits,
+        completed: completed,
+        durationSeconds: seconds,
+      ),
+    );
   }
 
   Future<void> transcribe() async {
@@ -182,6 +219,7 @@ class PracticeProvider extends ChangeNotifier {
     _onTarget = false;
     _recordingPath = null;
     _transcription = null;
+    _lastSession = null;
   }
 
   @override

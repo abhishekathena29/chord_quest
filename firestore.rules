@@ -1,0 +1,60 @@
+rules_version = '2';
+
+// Chord Quest: every document lives under users/{uid} and is private to the
+// signed-in owner. Writes are sanity-checked so a client can't store
+// malformed or absurd values.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function nonNegInt(value) {
+      return value is int && value >= 0;
+    }
+
+    function validProfile(d) {
+      return d.displayName is string && d.displayName.size() <= 100
+        && d.email is string && d.email.size() <= 320
+        && d.profileComplete is bool
+        && nonNegInt(d.xp)
+        && nonNegInt(d.streakCurrent)
+        && nonNegInt(d.streakLongest)
+        && nonNegInt(d.sessionsCount)
+        && nonNegInt(d.totalPracticeSeconds)
+        && nonNegInt(d.notesHit)
+        && nonNegInt(d.songsMastered);
+    }
+
+    function validSession(d) {
+      return d.songId is string && d.songId.size() <= 100
+        && d.songTitle is string && d.songTitle.size() <= 200
+        && d.startedAt is timestamp
+        && nonNegInt(d.durationSeconds) && d.durationSeconds <= 6 * 3600
+        && nonNegInt(d.notesHit)
+        && nonNegInt(d.totalNotes)
+        && nonNegInt(d.xpEarned) && d.xpEarned <= 1000;
+    }
+
+    match /users/{uid} {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid) && validProfile(request.resource.data);
+
+      // One document per finished practice take; immutable once written.
+      match /sessions/{sessionId} {
+        allow read, delete: if isOwner(uid);
+        allow create: if isOwner(uid) && validSession(request.resource.data);
+      }
+
+      // Best result per song.
+      match /songProgress/{songId} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && nonNegInt(request.resource.data.attempts)
+          && nonNegInt(request.resource.data.bestScorePct)
+          && request.resource.data.bestScorePct <= 100;
+      }
+    }
+  }
+}

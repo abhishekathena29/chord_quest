@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/session/user_session.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/quest_app_bar.dart';
 import '../../journey/ui/journey_screen.dart';
 import '../../practice/ui/practice_screen.dart';
-import '../../profile/provider/profile_provider.dart';
 import '../../profile/ui/profile_screen.dart';
 import '../../sheet_music/provider/sheet_library_provider.dart';
 import '../../sheet_music/ui/sheet_library_screen.dart';
@@ -29,15 +29,16 @@ class MainShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => NavProvider()),
-        ChangeNotifierProvider(create: (_) => ProfileProvider()),
-      ],
+    final profile = context.watch<UserSession>().profile;
+    return ChangeNotifierProvider(
+      create: (_) => NavProvider(),
       child: Consumer<NavProvider>(
         builder: (context, nav, _) {
           return Scaffold(
-            appBar: const QuestAppBar(),
+            appBar: QuestAppBar(
+              xp: profile?.xp ?? 0,
+              streak: profile?.currentStreak() ?? 0,
+            ),
             body: AppBackground(
               child: IndexedStack(index: nav.index, children: _screens),
             ),

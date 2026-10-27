@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/session/user_session.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/gradient_button.dart';
-import '../../profile_setup/ui/profile_setup_screen.dart';
-import '../../shell/ui/main_shell.dart';
 import '../provider/auth_provider.dart';
 
 /// Sign-in / sign-up screen: flat fields on a plain background, one bold
@@ -19,7 +18,7 @@ class AuthScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => AuthProvider(),
+      create: (context) => AuthProvider(context.read<UserSession>()),
       child: const _AuthView(),
     );
   }
@@ -28,17 +27,18 @@ class AuthScreen extends StatelessWidget {
 class _AuthView extends StatelessWidget {
   const _AuthView();
 
-  Future<void> _submit(BuildContext context) async {
-    final provider = context.read<AuthProvider>();
-    final wasSignUp = !provider.isSignIn;
-    final ok = await provider.submit();
-    if (!ok || !context.mounted) return;
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(
-        builder: (_) =>
-            wasSignUp ? const ProfileSetupScreen() : const MainShell(),
+  void _submit(BuildContext context) {
+    FocusScope.of(context).unfocus();
+    context.read<AuthProvider>().submit();
+  }
+
+  Future<void> _forgotPassword(BuildContext context) async {
+    final sent = await context.read<AuthProvider>().sendPasswordReset();
+    if (!sent || !context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Password reset email sent. Check your inbox.'),
       ),
-      (route) => false,
     );
   }
 
@@ -78,19 +78,58 @@ class _AuthView extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.xl),
                     if (!provider.isSignIn) ...[
-                      const _FlatField(hint: 'Full name'),
+                      _FlatField(
+                        hint: 'Full name',
+                        controller: provider.nameController,
+                        keyboardType: TextInputType.name,
+                        autofillHints: const [AutofillHints.name],
+                      ),
                       const SizedBox(height: AppSpacing.sm),
                     ],
-                    const _FlatField(
+                    _FlatField(
                       hint: 'Email address',
+                      controller: provider.emailController,
                       keyboardType: TextInputType.emailAddress,
+                      autofillHints: const [AutofillHints.email],
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     _FlatField(
                       hint: 'Password',
+                      controller: provider.passwordController,
                       obscure: provider.obscurePassword,
                       trailing: _ObscureToggle(provider: provider),
+                      autofillHints: [
+                        provider.isSignIn
+                            ? AutofillHints.password
+                            : AutofillHints.newPassword,
+                      ],
+                      onSubmitted: (_) => _submit(context),
                     ),
+                    if (provider.isSignIn)
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: provider.loading
+                              ? null
+                              : () => _forgotPassword(context),
+                          child: Text(
+                            'Forgot password?',
+                            style: AppTypography.labelMd.copyWith(
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ),
+                      ),
+                    if (provider.error != null) ...[
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        provider.error!,
+                        textAlign: TextAlign.center,
+                        style: AppTypography.labelMd.copyWith(
+                          color: AppColors.error,
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: AppSpacing.lg),
                     GradientButton(
                       label: provider.loading
@@ -112,7 +151,9 @@ class _AuthView extends StatelessWidget {
                           style: AppTypography.bodyMd,
                         ),
                         TextButton(
-                          onPressed: provider.toggleMode,
+                          onPressed: provider.loading
+                              ? null
+                              : provider.toggleMode,
                           child: Text(
                             provider.isSignIn ? 'Sign Up' : 'Login',
                             style: AppTypography.labelMd.copyWith(
@@ -168,15 +209,21 @@ class _ObscureToggle extends StatelessWidget {
 class _FlatField extends StatefulWidget {
   const _FlatField({
     required this.hint,
+    required this.controller,
     this.obscure = false,
     this.trailing,
     this.keyboardType,
+    this.autofillHints,
+    this.onSubmitted,
   });
 
   final String hint;
+  final TextEditingController controller;
   final bool obscure;
   final Widget? trailing;
   final TextInputType? keyboardType;
+  final Iterable<String>? autofillHints;
+  final ValueChanged<String>? onSubmitted;
 
   @override
   State<_FlatField> createState() => _FlatFieldState();
@@ -211,9 +258,16 @@ class _FlatFieldState extends State<_FlatField> {
         ),
       ),
       child: TextField(
+        controller: widget.controller,
         focusNode: _node,
         obscureText: widget.obscure,
         keyboardType: widget.keyboardType,
+        autofillHints: widget.autofillHints,
+        autocorrect: false,
+        textInputAction: widget.onSubmitted != null
+            ? TextInputAction.done
+            : TextInputAction.next,
+        onSubmitted: widget.onSubmitted,
         style: AppTypography.bodyMd.copyWith(color: AppColors.onSurface),
         decoration: InputDecoration(
           suffixIcon: widget.trailing,

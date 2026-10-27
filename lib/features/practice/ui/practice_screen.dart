@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/session/user_session.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
@@ -21,7 +22,10 @@ class PracticeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => PracticeProvider(song: song),
+      create: (context) => PracticeProvider(
+        song: song,
+        onSessionFinished: context.read<UserSession>().recordSession,
+      ),
       child: _PracticeView(song: song),
     );
   }
@@ -222,6 +226,7 @@ class _ResultPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = provider.transcription;
+    final session = provider.lastSession;
     return AppCard(
       accentColor: AppColors.secondary,
       child: Column(
@@ -229,11 +234,38 @@ class _ResultPanel extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.check_circle, color: Color(0xFF059669)),
+              Icon(
+                session != null ? Icons.check_circle : Icons.info_outline,
+                color: session != null
+                    ? const Color(0xFF059669)
+                    : AppColors.onSurfaceVariant,
+              ),
               const SizedBox(width: AppSpacing.base),
-              Text('Session Saved', style: AppTypography.headlineMd),
+              Expanded(
+                child: Text(
+                  session != null ? 'Session Saved' : 'Too short to save',
+                  style: AppTypography.headlineMd,
+                ),
+              ),
+              if (session != null)
+                Text(
+                  '+${session.xpEarned} XP',
+                  style: AppTypography.labelMd.copyWith(
+                    color: AppColors.secondary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
             ],
           ),
+          if (session != null) ...[
+            const SizedBox(height: AppSpacing.base),
+            Text(
+              session.completed
+                  ? 'Full run-through • score ${session.scorePct}%'
+                  : '${session.notesPlayed} / ${session.totalNotes} notes played',
+              style: AppTypography.bodyMd,
+            ),
+          ],
           const SizedBox(height: AppSpacing.base),
           Text(
             provider.recordingPath == null

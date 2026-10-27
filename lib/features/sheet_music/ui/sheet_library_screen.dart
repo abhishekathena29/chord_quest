@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/data/models/song_progress.dart';
+import '../../../core/session/user_session.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/app_card.dart';
-import '../../profile/provider/profile_provider.dart';
 import '../../shell/provider/nav_provider.dart';
 import '../provider/sheet_library_provider.dart';
 import 'sheet_viewer_screen.dart';
@@ -30,7 +31,18 @@ class _LibraryView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.watch<SheetLibraryProvider>();
-    final profile = context.watch<ProfileProvider>();
+    final session = context.watch<UserSession>();
+    final progress = session.songProgress;
+    // Most recently practised first, then everything not yet tried.
+    final recent = [...p.allSongs]
+      ..sort((a, b) {
+        final at = progress[a.id]?.lastPracticedAt;
+        final bt = progress[b.id]?.lastPracticedAt;
+        if (at == null && bt == null) return 0;
+        if (at == null) return 1;
+        if (bt == null) return -1;
+        return bt.compareTo(at);
+      });
     return ListView(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.md,
@@ -39,7 +51,7 @@ class _LibraryView extends StatelessWidget {
         AppSpacing.lg,
       ),
       children: [
-        _HomeHeader(name: profile.name),
+        _HomeHeader(name: session.profile?.firstName ?? 'Guitarist'),
         const SizedBox(height: AppSpacing.lg),
         Text(
           'KEEP LEARNING',
@@ -51,7 +63,7 @@ class _LibraryView extends StatelessWidget {
         const SizedBox(height: AppSpacing.xs),
         Text('Pick up where you left off', style: AppTypography.headlineMd),
         const SizedBox(height: AppSpacing.md),
-        _SongCarousel(songs: p.songs),
+        _SongCarousel(songs: recent),
         const SizedBox(height: AppSpacing.lg),
         Text('All Songs', style: AppTypography.headlineMd),
         const SizedBox(height: AppSpacing.md),
@@ -313,6 +325,9 @@ class _SongRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final progress = context.select<UserSession, SongProgress?>(
+      (s) => s.songProgress[song.id],
+    );
     return AppCard(
       padding: const EdgeInsets.all(AppSpacing.sm),
       onTap: () => Navigator.of(
@@ -348,6 +363,15 @@ class _SongRow extends StatelessWidget {
                     _tag(song.difficulty.label, song.difficulty.color),
                     const SizedBox(width: 6),
                     _tag('${song.tempo} BPM', AppColors.onSurfaceVariant),
+                    if (progress != null) ...[
+                      const SizedBox(width: 6),
+                      progress.mastered
+                          ? _tag('Mastered', AppColors.secondary)
+                          : _tag(
+                              'Best ${progress.bestScorePct}%',
+                              AppColors.primary,
+                            ),
+                    ],
                   ],
                 ),
               ],

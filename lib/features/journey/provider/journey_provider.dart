@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/data/models/user_profile.dart';
+import '../../../core/progress/progression.dart';
+
 enum NodeStatus { completed, active, upcoming, locked }
 
 /// A single sub-level node on the journey map.
@@ -8,11 +11,13 @@ class JourneyNode {
     required this.part,
     required this.title,
     required this.status,
+    required this.unlockXp,
   });
 
   final String part; // e.g. "Part A"
   final String title; // e.g. "Chords 101"
   final NodeStatus status;
+  final int unlockXp;
 }
 
 /// A level (group of nodes) on the journey map.
@@ -28,47 +33,59 @@ class JourneyLevel {
   final Color accent;
 }
 
-/// Static journey data plus the daily-practice snapshot shown at the bottom.
-class JourneyProvider extends ChangeNotifier {
-  // Levels are ordered top (hardest / locked) to bottom (completed) to match
-  // the vertical map in the design.
-  final List<JourneyLevel> levels = const [
-    JourneyLevel(
-      title: 'Level 3: Shred Master',
-      accent: Color(0xFFA900A9),
-      nodes: [
-        JourneyNode(part: 'Part C', title: 'Sweep Picking', status: NodeStatus.locked),
-        JourneyNode(part: 'Part B', title: 'Tapping', status: NodeStatus.locked),
-        JourneyNode(part: 'Part A', title: 'Fast Alt Picking', status: NodeStatus.locked),
-      ],
-    ),
-    JourneyLevel(
-      title: 'Level 2: Riff Rider',
-      accent: Color(0xFF006970),
-      nodes: [
-        JourneyNode(part: 'Part C', title: 'Power Chords', status: NodeStatus.upcoming),
-        JourneyNode(part: 'Part B', title: 'Chords 101', status: NodeStatus.active),
-        JourneyNode(part: 'Part A', title: 'Open Strings', status: NodeStatus.completed),
-      ],
-    ),
-    JourneyLevel(
-      title: 'Level 1: String Starter',
-      accent: Color(0xFF00DBE9),
-      nodes: [
-        JourneyNode(part: 'Complete', title: 'Fundamentals', status: NodeStatus.completed),
-      ],
-    ),
+/// Journey map + daily-practice snapshot derived from the player's profile.
+/// Nodes unlock as total XP passes each [Progression.milestones] threshold.
+class JourneyProgress {
+  JourneyProgress(this.profile);
+
+  final UserProfile? profile;
+
+  static const _accents = [
+    Color(0xFF00DBE9),
+    Color(0xFF006970),
+    Color(0xFFA900A9),
   ];
 
-  // Daily practice snapshot
-  final int minutesPlayed = 15;
-  final int minutesGoal = 20;
-  final double totalHours = 42.5;
-  final int badges = 18;
+  int get xp => profile?.xp ?? 0;
 
-  double get dailyProgress => minutesPlayed / minutesGoal;
-
-  void openNode(JourneyNode node) {
-    // Hook for navigating into a lesson; UI-only for now.
+  NodeStatus _statusFor(int index, int active) {
+    if (index < active) return NodeStatus.completed;
+    if (index == active) return NodeStatus.active;
+    if (index == active + 1) return NodeStatus.upcoming;
+    return NodeStatus.locked;
   }
+
+  // Levels are ordered top (hardest / locked) to bottom (completed) to match
+  // the vertical map in the design.
+  List<JourneyLevel> get levels {
+    final active = Progression.activeMilestoneIndex(xp);
+    final milestones = Progression.milestones;
+    return [
+      for (var level = Progression.rankTitles.length - 1; level >= 0; level--)
+        JourneyLevel(
+          title: 'Level ${level + 1}: ${Progression.rankTitles[level]}',
+          accent: _accents[level],
+          nodes: [
+            for (var i = milestones.length - 1; i >= 0; i--)
+              if (milestones[i].level == level)
+                JourneyNode(
+                  part: milestones[i].part,
+                  title: milestones[i].title,
+                  status: _statusFor(i, active),
+                  unlockXp: milestones[i].xp,
+                ),
+          ],
+        ),
+    ];
+  }
+
+  // Daily practice snapshot
+  int get minutesPlayed => (profile?.secondsToday() ?? 0) ~/ 60;
+  int get minutesGoal => profile?.dailyGoalMinutes ?? 20;
+  double get totalHours =>
+      ((profile?.totalPracticeSeconds ?? 0) / 3600 * 10).round() / 10;
+  int get sessions => profile?.sessionsCount ?? 0;
+
+  double get dailyProgress =>
+      minutesGoal == 0 ? 0 : (minutesPlayed / minutesGoal).clamp(0, 1);
 }

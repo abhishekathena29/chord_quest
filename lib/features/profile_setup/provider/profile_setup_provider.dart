@@ -33,7 +33,7 @@ extension PracticeGoalX on PracticeGoal {
 }
 
 /// Minimal post-signup questionnaire: skill level, experience and goal.
-/// UI-only scaffolding — wire these answers to a backend profile later.
+/// Answers are saved (as enum names) to the player's Firestore profile.
 class ProfileSetupProvider extends ChangeNotifier {
   SkillLevel? _skill;
   SkillLevel? get skill => _skill;
