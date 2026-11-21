@@ -108,8 +108,8 @@ class TunerProvider extends ChangeNotifier {
   Future<void> start() async {
     final status = await Permission.microphone.request();
     _permission = switch (status) {
-      PermissionStatus.granted || PermissionStatus.limited =>
-        MicPermission.granted,
+      PermissionStatus.granted ||
+      PermissionStatus.limited => MicPermission.granted,
       PermissionStatus.permanentlyDenied => MicPermission.permanentlyDenied,
       _ => MicPermission.denied,
     };

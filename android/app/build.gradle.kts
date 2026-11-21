@@ -33,8 +33,8 @@ android {
         // record (audio streaming) requires API 23+.
         minSdk = maxOf(23, flutter.minSdkVersion)
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.0.1"
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
     }
     
     signingConfigs {

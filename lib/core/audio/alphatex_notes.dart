@@ -61,7 +61,8 @@ class AlphaTexNotes {
         buffer.write(c);
         tokens.add(buffer.toString());
         buffer.clear();
-      } else if (!inParens && (c == ' ' || c == '\n' || c == '\t' || c == '\r')) {
+      } else if (!inParens &&
+          (c == ' ' || c == '\n' || c == '\t' || c == '\r')) {
         if (buffer.isNotEmpty) {
           tokens.add(buffer.toString());
           buffer.clear();

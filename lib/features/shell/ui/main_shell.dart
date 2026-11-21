@@ -3,13 +3,11 @@ import 'package:provider/provider.dart';
 
 import '../../../core/session/user_session.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/quest_app_bar.dart';
 import '../../journey/ui/journey_screen.dart';
-import '../../practice/ui/practice_screen.dart';
+import '../../practice/ui/song_picker.dart';
 import '../../profile/ui/profile_screen.dart';
-import '../../sheet_music/provider/sheet_library_provider.dart';
 import '../../sheet_music/ui/sheet_library_screen.dart';
 import '../../tuner/ui/tuner_screen.dart';
 import '../provider/nav_provider.dart';
@@ -40,7 +38,15 @@ class MainShell extends StatelessWidget {
               streak: profile?.currentStreak() ?? 0,
             ),
             body: AppBackground(
-              child: IndexedStack(index: nav.index, children: _screens),
+              child: IndexedStack(
+                index: nav.index,
+                children: [
+                  // Hidden tabs get TickerMode off, which is how the tuner
+                  // knows to release the microphone.
+                  for (var i = 0; i < _screens.length; i++)
+                    TickerMode(enabled: i == nav.index, child: _screens[i]),
+                ],
+              ),
             ),
             floatingActionButton: const _PracticeFab(),
             floatingActionButtonLocation:
@@ -163,7 +169,7 @@ class _PracticeFab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => _pickSongToPractice(context),
+      onTap: () => pickSongToPractice(context),
       child: Container(
         width: 60,
         height: 60,
@@ -182,87 +188,6 @@ class _PracticeFab extends StatelessWidget {
           Icons.fiber_manual_record,
           color: Colors.white,
           size: 26,
-        ),
-      ),
-    );
-  }
-}
-
-Future<void> _pickSongToPractice(BuildContext context) async {
-  final songs = SheetLibraryProvider().songs;
-  final song = await showModalBottomSheet<SheetSong>(
-    context: context,
-    backgroundColor: AppColors.surfaceContainerLowest,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
-    ),
-    builder: (context) => _SongPickerSheet(songs: songs),
-  );
-  if (song != null && context.mounted) {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (_) => PracticeScreen(song: song)));
-  }
-}
-
-class _SongPickerSheet extends StatelessWidget {
-  const _SongPickerSheet({required this.songs});
-
-  final List<SheetSong> songs;
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      top: false,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.md,
-          AppSpacing.sm,
-          AppSpacing.md,
-          AppSpacing.md,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 36,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: AppSpacing.md),
-                decoration: BoxDecoration(
-                  color: AppColors.outlineVariant,
-                  borderRadius: BorderRadius.circular(AppRadius.full),
-                ),
-              ),
-            ),
-            const Text(
-              'Practice a song',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            for (final song in songs)
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: song.difficulty.color.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(AppRadius.base),
-                  ),
-                  child: Icon(song.icon, color: song.difficulty.color),
-                ),
-                title: Text(song.title),
-                subtitle: Text(song.subtitle),
-                trailing: const Icon(
-                  Icons.fiber_manual_record,
-                  color: AppColors.primary,
-                  size: 18,
-                ),
-                onTap: () => Navigator.of(context).pop(song),
-              ),
-          ],
         ),
       ),
     );

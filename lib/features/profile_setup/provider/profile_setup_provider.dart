@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/session/user_session.dart';
+
 enum SkillLevel { beginner, intermediate, advanced }
 
 extension SkillLevelX on SkillLevel {
@@ -60,5 +62,40 @@ class ProfileSetupProvider extends ChangeNotifier {
   void selectGoal(PracticeGoal value) {
     _goal = value;
     notifyListeners();
+  }
+
+  bool _saving = false;
+  bool get saving => _saving;
+
+  bool _disposed = false;
+
+  /// Saves the answers (all null when [skipped]) and returns an error message
+  /// to show, or null on success. On success the root auth gate swaps this
+  /// screen out as soon as the local Firestore cache updates.
+  Future<String?> save(UserSession session, {bool skipped = false}) async {
+    if (_saving) return null;
+    _saving = true;
+    notifyListeners();
+    try {
+      await session.completeProfileSetup(
+        skillLevel: skipped ? null : _skill?.name,
+        experience: skipped ? null : _experience?.name,
+        goal: skipped ? null : _goal?.name,
+      );
+      return null;
+    } catch (e) {
+      debugPrint('Profile setup failed: $e');
+      return "Couldn't save your profile. Check your connection and try again.";
+    } finally {
+      _saving = false;
+      // The screen is usually gone by now: the gate moved on to the shell.
+      if (!_disposed) notifyListeners();
+    }
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
   }
 }

@@ -27,8 +27,8 @@ class PracticeProvider extends ChangeNotifier {
     this.onSessionFinished,
     PitchEngine? engine,
     TranscriptionService? transcriber,
-  })  : _engine = engine ?? PitchEngine(),
-        _transcriber = transcriber ?? const StubTranscriptionService() {
+  }) : _engine = engine ?? PitchEngine(),
+       _transcriber = transcriber ?? const StubTranscriptionService() {
     _expected = AlphaTexNotes.parse(song.tex);
   }
 
@@ -95,6 +95,11 @@ class PracticeProvider extends ChangeNotifier {
   Duration get recordingLength => _recordingLength;
 
   // --- Transcription ---
+
+  /// False while only the placeholder backend is wired in, so the UI can hide
+  /// the "Convert to Sheet Music" action instead of offering a dead end.
+  bool get transcriptionAvailable => _transcriber is! StubTranscriptionService;
+
   bool _transcribing = false;
   bool get transcribing => _transcribing;
   TranscriptionResult? _transcription;

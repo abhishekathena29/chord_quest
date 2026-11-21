@@ -54,10 +54,11 @@ class StudyProvider extends ChangeNotifier {
 
   final List<StaffNote> staffNotes = const [
     StaffNote(
-        name: 'C4',
-        color: Color(0xFF006970),
-        staffPosition: 0.55,
-        active: true),
+      name: 'C4',
+      color: Color(0xFF006970),
+      staffPosition: 0.55,
+      active: true,
+    ),
     StaffNote(name: 'E4', color: Color(0xFFA900A9), staffPosition: 0.7),
     StaffNote(name: 'G4', color: Color(0xFF7212FF), staffPosition: 0.3),
     StaffNote(name: 'B4', color: Color(0xFF00DBE9), staffPosition: 0.85),
@@ -68,11 +69,12 @@ class StudyProvider extends ChangeNotifier {
 
   final List<FretMarker> markers = const [
     FretMarker(
-        label: 'C',
-        color: Color(0xFF006970),
-        string: 0,
-        fret: 1,
-        active: true),
+      label: 'C',
+      color: Color(0xFF006970),
+      string: 0,
+      fret: 1,
+      active: true,
+    ),
     FretMarker(label: 'G', color: Color(0xFFA900A9), string: 3, fret: 4),
     FretMarker(label: 'E', color: Color(0xFF7212FF), string: 2, fret: 6),
   ];

@@ -34,7 +34,8 @@ class StubTranscriptionService implements TranscriptionService {
   Future<TranscriptionResult> transcribe(String audioFilePath) async {
     await Future<void>.delayed(const Duration(milliseconds: 400));
     return const TranscriptionResult(
-      error: 'Transcription backend not configured yet. Add a Gemini API key '
+      error:
+          'Transcription backend not configured yet. Add a Gemini API key '
           'or deploy the Basic Pitch service, then swap in the concrete '
           'TranscriptionService.',
     );

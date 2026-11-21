@@ -7,6 +7,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/shapes.dart';
+import '../../practice/ui/song_picker.dart';
 import '../provider/journey_provider.dart';
 
 /// The "Guitarist's Journey" — a vertical, gamified level map with a daily
@@ -201,14 +202,22 @@ class _NodeShape extends StatelessWidget {
   Widget build(BuildContext context) {
     switch (node.status) {
       case NodeStatus.active:
-        return _hex(
-          size: 92,
-          gradient: const LinearGradient(colors: AppColors.brandGradient),
-          glow: AppColors.primary,
-          child: const Icon(
-            Icons.play_arrow_rounded,
-            color: AppColors.onPrimary,
-            size: 44,
+        // The current level's play button jumps straight into practice.
+        return Semantics(
+          button: true,
+          label: 'Practice ${node.title}',
+          child: GestureDetector(
+            onTap: () => pickSongToPractice(context),
+            child: _hex(
+              size: 92,
+              gradient: const LinearGradient(colors: AppColors.brandGradient),
+              glow: AppColors.primary,
+              child: const Icon(
+                Icons.play_arrow_rounded,
+                color: AppColors.onPrimary,
+                size: 44,
+              ),
+            ),
           ),
         );
       case NodeStatus.upcoming:

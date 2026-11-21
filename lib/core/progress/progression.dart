@@ -31,13 +31,55 @@ class Progression {
 
   /// Journey nodes from first to last, with the total XP that unlocks each.
   static const List<JourneyMilestone> milestones = [
-    JourneyMilestone(id: 'fundamentals', level: 0, part: 'Complete', title: 'Fundamentals', xp: 0),
-    JourneyMilestone(id: 'open-strings', level: 1, part: 'Part A', title: 'Open Strings', xp: 250),
-    JourneyMilestone(id: 'chords-101', level: 1, part: 'Part B', title: 'Chords 101', xp: 600),
-    JourneyMilestone(id: 'power-chords', level: 1, part: 'Part C', title: 'Power Chords', xp: 1000),
-    JourneyMilestone(id: 'alt-picking', level: 2, part: 'Part A', title: 'Fast Alt Picking', xp: 1600),
-    JourneyMilestone(id: 'tapping', level: 2, part: 'Part B', title: 'Tapping', xp: 2400),
-    JourneyMilestone(id: 'sweep-picking', level: 2, part: 'Part C', title: 'Sweep Picking', xp: 3400),
+    JourneyMilestone(
+      id: 'fundamentals',
+      level: 0,
+      part: 'Complete',
+      title: 'Fundamentals',
+      xp: 0,
+    ),
+    JourneyMilestone(
+      id: 'open-strings',
+      level: 1,
+      part: 'Part A',
+      title: 'Open Strings',
+      xp: 250,
+    ),
+    JourneyMilestone(
+      id: 'chords-101',
+      level: 1,
+      part: 'Part B',
+      title: 'Chords 101',
+      xp: 600,
+    ),
+    JourneyMilestone(
+      id: 'power-chords',
+      level: 1,
+      part: 'Part C',
+      title: 'Power Chords',
+      xp: 1000,
+    ),
+    JourneyMilestone(
+      id: 'alt-picking',
+      level: 2,
+      part: 'Part A',
+      title: 'Fast Alt Picking',
+      xp: 1600,
+    ),
+    JourneyMilestone(
+      id: 'tapping',
+      level: 2,
+      part: 'Part B',
+      title: 'Tapping',
+      xp: 2400,
+    ),
+    JourneyMilestone(
+      id: 'sweep-picking',
+      level: 2,
+      part: 'Part C',
+      title: 'Sweep Picking',
+      xp: 3400,
+    ),
   ];
 
   static const List<String> rankTitles = [

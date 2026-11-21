@@ -225,7 +225,6 @@ class _ResultPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = provider.transcription;
     final session = provider.lastSession;
     return AppCard(
       accentColor: AppColors.secondary,
@@ -273,56 +272,69 @@ class _ResultPanel extends StatelessWidget {
                 : 'Recording • ${provider.recordingLength.inSeconds}s',
             style: AppTypography.bodyMd,
           ),
-          const SizedBox(height: AppSpacing.md),
-          if (t == null)
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                ),
-                onPressed:
-                    provider.recordingPath == null || provider.transcribing
-                    ? null
-                    : provider.transcribe,
-                icon: provider.transcribing
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Icon(Icons.auto_awesome),
-                label: Text(
-                  provider.transcribing
-                      ? 'Transcribing…'
-                      : 'Convert to Sheet Music',
-                ),
-              ),
-            )
-          else
-            Container(
-              padding: const EdgeInsets.all(AppSpacing.sm),
-              decoration: BoxDecoration(
-                color: (t.isSuccess ? AppColors.primary : AppColors.error)
-                    .withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(AppRadius.md),
-              ),
-              child: Text(
-                t.isSuccess
-                    ? 'Transcribed! Rendering will open in the viewer.'
-                    : t.error ?? 'Transcription failed.',
-                style: AppTypography.labelMd.copyWith(
-                  color: t.isSuccess ? AppColors.primary : AppColors.error,
-                ),
-              ),
-            ),
+          if (provider.transcriptionAvailable) ...[
+            const SizedBox(height: AppSpacing.md),
+            _TranscribeAction(provider: provider),
+          ],
         ],
       ),
     );
+  }
+}
+
+/// Turns the recorded take into sheet music, or shows the result once done.
+class _TranscribeAction extends StatelessWidget {
+  const _TranscribeAction({required this.provider});
+
+  final PracticeProvider provider;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = provider.transcription;
+    return t == null
+        ? SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+              ),
+              onPressed: provider.recordingPath == null || provider.transcribing
+                  ? null
+                  : provider.transcribe,
+              icon: provider.transcribing
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Icon(Icons.auto_awesome),
+              label: Text(
+                provider.transcribing
+                    ? 'Transcribing…'
+                    : 'Convert to Sheet Music',
+              ),
+            ),
+          )
+        : Container(
+            padding: const EdgeInsets.all(AppSpacing.sm),
+            decoration: BoxDecoration(
+              color: (t.isSuccess ? AppColors.primary : AppColors.error)
+                  .withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(AppRadius.md),
+            ),
+            child: Text(
+              t.isSuccess
+                  ? 'Transcribed! Rendering will open in the viewer.'
+                  : t.error ?? 'Transcription failed.',
+              style: AppTypography.labelMd.copyWith(
+                color: t.isSuccess ? AppColors.primary : AppColors.error,
+              ),
+            ),
+          );
   }
 }
 

@@ -29,9 +29,9 @@ class UserRepository {
       _user(uid).collection('songProgress');
 
   /// Emits `null` while the profile document doesn't exist yet.
-  Stream<UserProfile?> watchUser(String uid) => _user(uid).snapshots().map(
-    (doc) => doc.exists ? UserProfile.fromSnapshot(doc) : null,
-  );
+  Stream<UserProfile?> watchUser(String uid) => _user(
+    uid,
+  ).snapshots().map((doc) => doc.exists ? UserProfile.fromSnapshot(doc) : null);
 
   Stream<Map<String, SongProgress>> watchSongProgress(String uid) =>
       _songProgress(uid).snapshots().map(
@@ -53,9 +53,9 @@ class UserRepository {
     required String uid,
     required String displayName,
     required String email,
-  }) => _user(uid).set(
-    UserProfile.initialData(displayName: displayName, email: email),
-  );
+  }) => _user(
+    uid,
+  ).set(UserProfile.initialData(displayName: displayName, email: email));
 
   /// Saves the post-signup questionnaire. If the profile document was never
   /// created (e.g. sign-up was interrupted) it is created here as well.

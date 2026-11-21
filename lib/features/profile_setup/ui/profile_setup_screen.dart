@@ -29,16 +29,15 @@ class _ProfileSetupView extends StatelessWidget {
   /// Saves the answers (all null when skipped). The write lands in the local
   /// Firestore cache straight away, so the root auth gate moves on to the
   /// main shell without waiting for the server.
-  void _finish(BuildContext context, {bool skipped = false}) {
-    final p = context.read<ProfileSetupProvider>();
-    context
-        .read<UserSession>()
-        .completeProfileSetup(
-          skillLevel: skipped ? null : p.skill?.name,
-          experience: skipped ? null : p.experience?.name,
-          goal: skipped ? null : p.goal?.name,
-        )
-        .catchError((Object e) => debugPrint('Profile setup failed: $e'));
+  Future<void> _finish(BuildContext context, {bool skipped = false}) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final error = await context.read<ProfileSetupProvider>().save(
+      context.read<UserSession>(),
+      skipped: skipped,
+    );
+    if (error != null) {
+      messenger.showSnackBar(SnackBar(content: Text(error)));
+    }
   }
 
   @override
@@ -57,7 +56,9 @@ class _ProfileSetupView extends StatelessWidget {
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
-                      onPressed: () => _finish(context, skipped: true),
+                      onPressed: p.saving
+                          ? null
+                          : () => _finish(context, skipped: true),
                       child: Text(
                         'Skip',
                         style: AppTypography.labelMd.copyWith(
@@ -109,8 +110,10 @@ class _ProfileSetupView extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.xl),
                   GradientButton(
-                    label: 'Get Started',
-                    onPressed: p.canContinue ? () => _finish(context) : null,
+                    label: p.saving ? 'Saving…' : 'Get Started',
+                    onPressed: p.canContinue && !p.saving
+                        ? () => _finish(context)
+                        : null,
                   ),
                 ],
               ),

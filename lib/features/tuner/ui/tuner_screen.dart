@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/audio/note_math.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
@@ -23,23 +24,47 @@ class TunerScreen extends StatelessWidget {
   }
 }
 
-class _TunerView extends StatelessWidget {
+class _TunerView extends StatefulWidget {
   const _TunerView();
+
+  @override
+  State<_TunerView> createState() => _TunerViewState();
+}
+
+/// Releases the microphone whenever the tuner is not on screen: when another
+/// tab is selected or a route covers the shell (both turn [TickerMode] off),
+/// and when the app is sent to the background.
+class _TunerViewState extends State<_TunerView> {
+  late final AppLifecycleListener _lifecycle;
+
+  @override
+  void initState() {
+    super.initState();
+    _lifecycle = AppLifecycleListener(onHide: _stopListening);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!TickerMode.valuesOf(context).enabled) _stopListening();
+  }
+
+  void _stopListening() {
+    final p = context.read<TunerProvider>();
+    if (p.listening) p.stop();
+  }
+
+  @override
+  void dispose() {
+    _lifecycle.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final p = context.watch<TunerProvider>();
     return Column(
       children: [
-        const Padding(
-          padding: EdgeInsets.fromLTRB(
-            AppSpacing.md,
-            AppSpacing.sm,
-            AppSpacing.md,
-            0,
-          ),
-          child: _TopRow(),
-        ),
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
@@ -76,49 +101,6 @@ class _TunerView extends StatelessWidget {
   }
 }
 
-/// Instrument dropdown (cosmetic), a small brand icon, and a settings glyph —
-/// matching the reference's chromeless top row.
-class _TopRow extends StatefulWidget {
-  const _TopRow();
-
-  @override
-  State<_TopRow> createState() => _TopRowState();
-}
-
-class _TopRowState extends State<_TopRow> {
-  static const _modes = ['Acoustic', 'Electric'];
-  int _mode = 0;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        GestureDetector(
-          onTap: () => setState(() => _mode = (_mode + 1) % _modes.length),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(_modes[_mode], style: AppTypography.labelMd),
-              const Icon(
-                Icons.keyboard_arrow_down,
-                size: 18,
-                color: AppColors.onSurfaceVariant,
-              ),
-            ],
-          ),
-        ),
-        const Icon(Icons.graphic_eq, color: AppColors.primary, size: 20),
-        const Icon(
-          Icons.settings_outlined,
-          color: AppColors.onSurfaceVariant,
-          size: 20,
-        ),
-      ],
-    );
-  }
-}
-
 class _StatusMessage extends StatelessWidget {
   const _StatusMessage({required this.provider});
 
@@ -136,7 +118,7 @@ class _StatusMessage extends StatelessWidget {
         return (text: 'Tune down a little', color: AppColors.secondary);
       case TuneDirection.none:
         return (
-          text: provider.listening ? 'Pluck a string…' : 'Tap to start',
+          text: provider.listening ? 'Pluck a string…' : 'Tap the mic to start',
           color: AppColors.onSurfaceVariant,
         );
     }
@@ -253,6 +235,10 @@ class _NoteRow extends StatelessWidget {
     'B': 'Si',
   };
 
+  /// "D#" -> "Re#": solfège of the natural note plus any accidental.
+  static String _solfegeFor(String name) =>
+      '${_solfege[name[0]] ?? ''}${name.substring(1)}';
+
   @override
   Widget build(BuildContext context) {
     final strings = provider.tuning.strings;
@@ -261,9 +247,9 @@ class _NoteRow extends StatelessWidget {
       children: [
         for (var i = 0; i < strings.length; i++)
           _NoteCircle(
-            letter: strings[i].label[0],
+            letter: NoteMath.noteName(strings[i].midi),
             lowercase: i == strings.length - 1,
-            solfege: _solfege[strings[i].label[0]] ?? '',
+            solfege: _solfegeFor(NoteMath.noteName(strings[i].midi)),
             active: provider.targetStringIndex == i && provider.hasSignal,
             tuned: provider.isStringTuned(i),
           ),
@@ -324,8 +310,7 @@ class _NoteCircle extends StatelessWidget {
   }
 }
 
-/// Slim pill toggling the microphone — replaces the old large circular
-/// record button with the reference's compact "+"-style control.
+/// Slim pill toggling the microphone on and off.
 class _MicPill extends StatelessWidget {
   const _MicPill({required this.provider});
 
@@ -345,7 +330,7 @@ class _MicPill extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppRadius.full),
         ),
         child: Icon(
-          listening ? Icons.stop : Icons.add,
+          listening ? Icons.stop : Icons.mic,
           color: Colors.white,
           size: 20,
         ),

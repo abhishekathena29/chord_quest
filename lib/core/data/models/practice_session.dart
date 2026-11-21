@@ -34,8 +34,9 @@ class PracticeSession {
 
   /// Share of the song played correctly, 0–100. This is what song mastery
   /// and "best score" are based on.
-  int get scorePct =>
-      totalNotes == 0 ? 0 : ((notesHit / totalNotes) * 100).round().clamp(0, 100);
+  int get scorePct => totalNotes == 0
+      ? 0
+      : ((notesHit / totalNotes) * 100).round().clamp(0, 100);
 
   Map<String, dynamic> toMap() => {
     'songId': songId,
@@ -63,8 +64,7 @@ class PracticeSession {
       songId: d['songId'] as String? ?? '',
       songTitle: d['songTitle'] as String? ?? '',
       difficulty: d['difficulty'] as String? ?? '',
-      startedAt:
-          (d['startedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      startedAt: (d['startedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       durationSeconds: i('durationSeconds'),
       notesHit: i('notesHit'),
       notesPlayed: i('notesPlayed'),

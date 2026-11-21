@@ -7,7 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/app_card.dart';
-import '../../shell/provider/nav_provider.dart';
+import '../../practice/ui/song_picker.dart';
 import '../provider/sheet_library_provider.dart';
 import 'sheet_viewer_screen.dart';
 
@@ -79,8 +79,8 @@ class _LibraryView extends StatelessWidget {
   }
 }
 
-/// The dark greeting block: name + notification icon on top, a nested
-/// darker pill nudging the player toward today's practice underneath.
+/// The dark greeting block: the player's name on top, and a nested darker
+/// pill underneath that opens the song picker to start today's practice.
 class _HomeHeader extends StatelessWidget {
   const _HomeHeader({required this.name});
 
@@ -98,32 +98,13 @@ class _HomeHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Hello, $firstName 👋',
-                  style: AppTypography.headlineMd.copyWith(color: Colors.white),
-                ),
-              ),
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(AppRadius.full),
-                ),
-                child: const Icon(
-                  Icons.notifications_outlined,
-                  color: Colors.white,
-                  size: 20,
-                ),
-              ),
-            ],
+          Text(
+            'Hello, $firstName 👋',
+            style: AppTypography.headlineMd.copyWith(color: Colors.white),
           ),
           const SizedBox(height: AppSpacing.md),
           GestureDetector(
-            onTap: () => context.read<NavProvider>().select(NavTab.journey),
+            onTap: () => pickSongToPractice(context),
             child: Container(
               padding: const EdgeInsets.all(AppSpacing.sm),
               decoration: BoxDecoration(

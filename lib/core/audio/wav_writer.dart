@@ -16,9 +16,9 @@ class WavWriter {
 
   int get byteLength => _pcm.length;
   Duration get duration => Duration(
-        milliseconds:
-            ((_pcm.length / 2) / (sampleRate * numChannels) * 1000).round(),
-      );
+    milliseconds: ((_pcm.length / 2) / (sampleRate * numChannels) * 1000)
+        .round(),
+  );
 
   /// Serialises the buffered PCM to a `.wav` file at [path].
   Future<File> writeTo(String path) async {

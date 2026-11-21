@@ -47,15 +47,24 @@ class ProfileView {
   int get level => _p.level;
   String get rank => 'Lvl ${_p.level} ${_p.rank}';
 
-  String? get skillLabel =>
-      SkillLevel.values.asNameMap()[_p.skillLevel]?.label;
+  String? get skillLabel => SkillLevel.values.asNameMap()[_p.skillLevel]?.label;
 
   String? get joined {
     final created = _p.createdAt;
     if (created == null) return null;
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return 'Joined ${months[created.month - 1]} ${created.year}';
   }
@@ -104,18 +113,26 @@ class ProfileView {
     );
 
     return [
-      badge(Icons.play_arrow_rounded, 'First Steps',
-          const [Color(0xFF67E8F9), Color(0xFF3B82F6)], _p.sessionsCount >= 1),
-      badge(Icons.local_fire_department, 'On Fire',
-          const [Color(0xFFFDE047), Color(0xFFF97316)], _p.streakLongest >= 7),
-      badge(Icons.star, 'Chord Master',
-          const [Color(0xFFD8B4FE), Color(0xFFEC4899)], _p.songsMastered >= 3),
-      badge(Icons.speed, 'Marathon',
-          const [Color(0xFF6EE7B7), Color(0xFF059669)],
-          _p.totalPracticeSeconds >= 10 * 3600),
-      badge(Icons.electric_bolt, 'Shredder',
-          const [Color(0xFFFF9BF5), Color(0xFFA900A9)],
-          _p.xp >= Progression.milestones[4].xp),
+      badge(Icons.play_arrow_rounded, 'First Steps', const [
+        Color(0xFF67E8F9),
+        Color(0xFF3B82F6),
+      ], _p.sessionsCount >= 1),
+      badge(Icons.local_fire_department, 'On Fire', const [
+        Color(0xFFFDE047),
+        Color(0xFFF97316),
+      ], _p.streakLongest >= 7),
+      badge(Icons.star, 'Chord Master', const [
+        Color(0xFFD8B4FE),
+        Color(0xFFEC4899),
+      ], _p.songsMastered >= 3),
+      badge(Icons.speed, 'Marathon', const [
+        Color(0xFF6EE7B7),
+        Color(0xFF059669),
+      ], _p.totalPracticeSeconds >= 10 * 3600),
+      badge(Icons.electric_bolt, 'Shredder', const [
+        Color(0xFFFF9BF5),
+        Color(0xFFA900A9),
+      ], _p.xp >= Progression.milestones[4].xp),
     ];
   }
 

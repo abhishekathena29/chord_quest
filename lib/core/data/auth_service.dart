@@ -48,8 +48,7 @@ class AuthService {
     );
   });
 
-  Future<void> deleteCurrentUser() =>
-      _guard(() => _auth.currentUser!.delete());
+  Future<void> deleteCurrentUser() => _guard(() => _auth.currentUser!.delete());
 
   Future<T> _guard<T>(Future<T> Function() action) async {
     try {

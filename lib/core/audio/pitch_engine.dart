@@ -21,8 +21,11 @@ class PitchReading {
   /// Whether the analysed window actually contained a pitched sound.
   final bool pitched;
 
-  static const silent =
-      PitchReading(frequency: 0, probability: 0, pitched: false);
+  static const silent = PitchReading(
+    frequency: 0,
+    probability: 0,
+    pitched: false,
+  );
 }
 
 /// Captures microphone audio and emits a stream of [PitchReading]s using the
@@ -35,11 +38,11 @@ class PitchEngine {
     this.sampleRate = 44100,
     this.bufferSize = 2048,
     this.minProbability = 0.7,
-  })  : _recorder = AudioRecorder(),
-        _detector = PitchDetector(
-          audioSampleRate: sampleRate.toDouble(),
-          bufferSize: bufferSize,
-        );
+  }) : _recorder = AudioRecorder(),
+       _detector = PitchDetector(
+         audioSampleRate: sampleRate.toDouble(),
+         bufferSize: bufferSize,
+       );
 
   final int sampleRate;
   final int bufferSize;
@@ -106,18 +109,23 @@ class PitchEngine {
       _bytes.add(Uint8List.sublistView(all, 0, start));
     }
 
-    _detector.getPitchFromIntBuffer(window).then((result) {
-      if (!_running) return;
-      if (result.pitched && result.probability >= minProbability) {
-        _controller.add(PitchReading(
-          frequency: result.pitch,
-          probability: result.probability,
-          pitched: true,
-        ));
-      } else {
-        _controller.add(PitchReading.silent);
-      }
-    }).catchError((_) {});
+    _detector
+        .getPitchFromIntBuffer(window)
+        .then((result) {
+          if (!_running) return;
+          if (result.pitched && result.probability >= minProbability) {
+            _controller.add(
+              PitchReading(
+                frequency: result.pitch,
+                probability: result.probability,
+                pitched: true,
+              ),
+            );
+          } else {
+            _controller.add(PitchReading.silent);
+          }
+        })
+        .catchError((_) {});
   }
 
   Future<void> stop() async {

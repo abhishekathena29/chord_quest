@@ -158,6 +158,7 @@ class _Controls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ready = provider.playerReady;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
       child: AppCard(
@@ -173,24 +174,40 @@ class _Controls extends StatelessWidget {
                   active: provider.metronome,
                 ),
                 const Spacer(),
+                // Disabled with a spinner until the soundfont has loaded,
+                // so an early tap isn't silently ignored.
                 GestureDetector(
-                  onTap: provider.togglePlay,
+                  onTap: ready ? provider.togglePlay : null,
                   child: Container(
                     width: 60,
                     height: 60,
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(colors: AppColors.brandGradient),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: ready
+                            ? AppColors.brandGradient
+                            : [AppColors.outlineVariant, AppColors.outline],
+                      ),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(
-                      provider.playing ? Icons.pause : Icons.play_arrow,
-                      color: Colors.white,
-                      size: 32,
-                    ),
+                    child: ready
+                        ? Icon(
+                            provider.playing ? Icons.pause : Icons.play_arrow,
+                            color: Colors.white,
+                            size: 32,
+                          )
+                        : const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                 ),
                 const Spacer(),
-                _iconBtn(Icons.stop, provider.stop),
+                _iconBtn(Icons.stop, ready ? provider.stop : null),
               ],
             ),
             const SizedBox(height: AppSpacing.sm),
@@ -227,12 +244,16 @@ class _Controls extends StatelessWidget {
     );
   }
 
-  Widget _iconBtn(IconData icon, VoidCallback onTap, {bool active = false}) {
+  Widget _iconBtn(IconData icon, VoidCallback? onTap, {bool active = false}) {
     return IconButton(
       onPressed: onTap,
       icon: Icon(
         icon,
-        color: active ? AppColors.primary : AppColors.onSurfaceVariant,
+        color: onTap == null
+            ? AppColors.outlineVariant
+            : active
+            ? AppColors.primary
+            : AppColors.onSurfaceVariant,
       ),
     );
   }

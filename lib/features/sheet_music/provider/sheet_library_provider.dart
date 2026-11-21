@@ -4,16 +4,16 @@ enum Difficulty { beginner, intermediate, advanced }
 
 extension DifficultyX on Difficulty {
   String get label => switch (this) {
-        Difficulty.beginner => 'Beginner',
-        Difficulty.intermediate => 'Intermediate',
-        Difficulty.advanced => 'Advanced',
-      };
+    Difficulty.beginner => 'Beginner',
+    Difficulty.intermediate => 'Intermediate',
+    Difficulty.advanced => 'Advanced',
+  };
 
   Color get color => switch (this) {
-        Difficulty.beginner => const Color(0xFF059669),
-        Difficulty.intermediate => const Color(0xFF006970),
-        Difficulty.advanced => const Color(0xFFA900A9),
-      };
+    Difficulty.beginner => const Color(0xFF059669),
+    Difficulty.intermediate => const Color(0xFF006970),
+    Difficulty.advanced => const Color(0xFFA900A9),
+  };
 }
 
 /// A practiceable piece of sheet music, stored as compact alphaTex that
@@ -51,7 +51,8 @@ class SheetLibraryProvider extends ChangeNotifier {
       difficulty: Difficulty.beginner,
       tempo: 90,
       icon: Icons.straighten,
-      tex: '\\title "C Major Scale"\n\\tempo 90\n.\n'
+      tex:
+          '\\title "C Major Scale"\n\\tempo 90\n.\n'
           ':8 3.5 0.4 2.4 3.4 0.3 2.3 0.2 1.2 |'
           ':8 1.2 0.2 2.3 0.3 3.4 2.4 0.4 3.5',
     ),
@@ -62,7 +63,8 @@ class SheetLibraryProvider extends ChangeNotifier {
       difficulty: Difficulty.beginner,
       tempo: 100,
       icon: Icons.grid_4x4,
-      tex: '\\title "A Minor Pentatonic"\n\\tempo 100\n.\n'
+      tex:
+          '\\title "A Minor Pentatonic"\n\\tempo 100\n.\n'
           ':8 0.6 3.6 0.5 3.5 0.4 2.4 0.3 2.3 |'
           ':8 0.2 3.2 0.1 3.1 3.1 0.1 3.2 0.2',
     ),
@@ -73,7 +75,8 @@ class SheetLibraryProvider extends ChangeNotifier {
       difficulty: Difficulty.beginner,
       tempo: 80,
       icon: Icons.fitness_center,
-      tex: '\\title "Chromatic Warm-up"\n\\tempo 80\n.\n'
+      tex:
+          '\\title "Chromatic Warm-up"\n\\tempo 80\n.\n'
           ':16 1.6 2.6 3.6 4.6 1.5 2.5 3.5 4.5 1.4 2.4 3.4 4.4 1.3 2.3 3.3 4.3',
     ),
     SheetSong(
@@ -83,7 +86,8 @@ class SheetLibraryProvider extends ChangeNotifier {
       difficulty: Difficulty.intermediate,
       tempo: 110,
       icon: Icons.bolt,
-      tex: '\\title "Power Chords 101"\n\\tempo 110\n.\n'
+      tex:
+          '\\title "Power Chords 101"\n\\tempo 110\n.\n'
           ':4 (0.6 2.5 2.4) (0.6 2.5 2.4) (0.5 2.4 2.3) (0.5 2.4 2.3) |'
           ':4 (0.4 2.3 2.2) (0.4 2.3 2.2) (0.5 2.4 2.3) (0.6 2.5 2.4)',
     ),
@@ -94,7 +98,8 @@ class SheetLibraryProvider extends ChangeNotifier {
       difficulty: Difficulty.intermediate,
       tempo: 120,
       icon: Icons.piano,
-      tex: '\\title "Ode to Joy"\n\\tempo 120\n.\n'
+      tex:
+          '\\title "Ode to Joy"\n\\tempo 120\n.\n'
           ':4 2.4 2.4 3.4 0.3 | 0.3 3.4 2.4 0.4 |'
           ':4 1.2 1.2 0.4 2.4 | :2 2.4 :4 2.4 0.4',
     ),

@@ -67,6 +67,6 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>MelodyQuest uses the microphone to tune your guitar, score your practice in real time, and record your playing.</string>
+	<string>Chord Quest uses the microphone to tune your guitar, score your practice in real time, and record your playing.</string>
 </dict>
 </plist>

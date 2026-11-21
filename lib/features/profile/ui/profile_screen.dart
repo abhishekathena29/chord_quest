@@ -569,10 +569,7 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
                   height: 16,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Text(
-                  'Delete',
-                  style: TextStyle(color: AppColors.error),
-                ),
+              : const Text('Delete', style: TextStyle(color: AppColors.error)),
         ),
       ],
     );
